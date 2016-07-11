@@ -30,7 +30,8 @@ var config = {
       loader: 'babel'
     }]
   },
-  plugins: [new webpack.BannerPlugin(bannar)]
+  plugins: [new webpack.BannerPlugin(bannar)],
+  devtool: 'source-map'
 }
 
 module.exports = config;

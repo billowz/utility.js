@@ -76,9 +76,9 @@ export function isArrayLike(obj) {
     case nodeListType:
       return true
     default:
-      if(obj){
+      if (obj) {
         let length = obj.length
-        return isNumber(length) && length > 0 && ( length - 1 ) in obj
+        return isNumber(length) && length > 0 && (length - 1) in obj
       }
       return false
   }
@@ -289,7 +289,7 @@ function justify(value, prefix, leftJustify, minWidth, zeroPad) {
   return value
 }
 
-export function format(str){
+export function format(str) {
   return _format(str, Array.prototype.slice.call(arguments, 1)).format
 }
 
@@ -415,7 +415,7 @@ export function _format(str, args) {
             method = (!precision || precision <= sf) ? 'toPrecision' : 'toExponential'
           }
           let number_str = Math.abs(number)[method](precision)
-          // number_str = thousandSeparation ? thousand_separate(number_str): number_str
+            // number_str = thousandSeparation ? thousand_separate(number_str): number_str
           value = prefix + number_str
           break
         }
@@ -512,7 +512,7 @@ export function set(obj, expr, value) {
   return obj
 }
 
-export function getOwnProp(obj, key){
+export function getOwnProp(obj, key) {
   return hasOwnProp(obj, key) ? obj[key] : undefined
 }
 
@@ -560,12 +560,10 @@ export let create = Object.create || function(parent, props) {
   emptyFunc.prototype = parent
   let obj = new emptyFunc()
   emptyFunc.prototype = undefined
-  if (props) {
-    for (let prop in props) {
-      if (hasOwnProp(props, prop))
-        obj[prop] = props[prop]
-    }
-  }
+  if (props)
+    each(props, (prop, name) => {
+      obj[name] = prop.value
+    })
   return obj
 }
 
@@ -575,60 +573,65 @@ export function isExtendOf(cls, parent) {
 
   let proto = cls
 
-  while ((proto = prototypeOf(proto))) {
+  while ((proto = prototypeOf(proto)) && proto !== Object) {
     if (proto === parent)
       return true
   }
-  return false
+  return parent === Object
 }
 
-const classOptionConstructorKey = 'constructor',
-  classOptionExtendKey = 'extend'
+function getStringProp(obj, prop, defVal) {
+  let val = obj[prop]
 
-export function dynamicClass(cfg, options) {
-  let constructorKey, extendKey, constructor, superCls, cls
+  return isString(val) ? val : defVal
+}
+
+function getConstructor(cfg, key) {
+  let con = cfg[key]
+  delete cfg[key]
+  return isFunc(con) ? con : Object.prototype.constructor
+}
+
+function getSuperClass(cfg, key) {
+  let cls = cfg[key]
+  delete cfg[key]
+  return isFunc(cls) ? cls : Object
+}
+
+function getStatics(cfg, key) {
+  let statics = cfg[key]
+  delete cfg[key]
+  return isObject(statics) ? statics : undefined
+}
+
+export function dynamicClass(cfg, options = {}) {
+  let constructor, superCls, statics, cls
 
   if (!isObject(cfg))
     throw TypeError(`Invalid Class Config: ${cfg}`)
 
-  options = options || {}
-  constructorKey = isString(options.constructor) ? options.constructor : classOptionConstructorKey
-  extendKey = isString(options.extend) ? options.extend : classOptionExtendKey
-  constructor = cfg[constructorKey]
-  superCls = cfg[extendKey]
+  constructor = getConstructor(cfg, getStringProp(options, 'constructor', 'constructor'))
+  superCls = getSuperClass(cfg, getStringProp(options, 'extend', 'extend'))
+  statics = getStatics(cfg, getStringProp(options, 'statics', 'statics'))
 
-  if (!isFunc(constructor) || constructor === Object)
-    constructor = undefined
-  if (!isFunc(superCls) || superCls === Object)
-    superCls = undefined
+  cls = (function(constructor, superCls, cfg) {
+    let proto = create(superCls.prototype)
+    proto.constructor = constructor
+    proto.super = superCls.prototype
 
-  cls = (function(constructor, superCls) {
     function DynamicClass() {
-      if (superCls && !(this instanceof superCls))
-        throw new TypeError('Cannot call a class as a function')
-      if (constructor) {
-        constructor.apply(this, arguments)
-      } else if (superCls) {
-        superCls.apply(this, arguments)
-      }
+      return this.constructor.apply(this, arguments)
     }
-    let proto = {
-      constructor: {
-        value: DynamicClass,
-        enumerable: false,
-        writable: true,
-        configurable: true
-      }
-    }
+    each(cfg, (val, key) => {
+      proto[key] = val
+    })
 
-    DynamicClass.prototype = superCls ? create(superCls.prototype, proto) : proto
-    setPrototypeOf(DynamicClass, superCls || {})
+    DynamicClass.prototype = proto
+    setPrototypeOf(DynamicClass, superCls)
     return DynamicClass
-  })(constructor, superCls)
+  })(constructor, superCls, cfg)
 
-  each(cfg, (val, key) => {
-    if (key !== constructorKey)
-      cls.prototype[key] = val
-  })
+  if (statics)
+    assign(cls, statics)
   return cls
 }

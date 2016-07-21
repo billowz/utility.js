@@ -1,5 +1,5 @@
 /*!
- * utility.js v0.0.2 built in Mon, 11 Jul 2016 02:34:05 GMT
+ * utility.js v0.0.3 built in Thu, 21 Jul 2016 10:44:17 GMT
  * Copyright (c) 2016 Tao Zeng <tao.zeng.zt@gmail.com>
  * Released under the MIT license
  * support IE6+ and other browsers
@@ -718,11 +718,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  emptyFunc.prototype = parent;
 	  var obj = new emptyFunc();
 	  emptyFunc.prototype = undefined;
-	  if (props) {
-	    for (var prop in props) {
-	      if (hasOwnProp(props, prop)) obj[prop] = props[prop];
-	    }
-	  }
+	  if (props) each(props, function (prop, name) {
+	    obj[name] = prop.value;
+	  });
 	  return obj;
 	};
 	
@@ -731,59 +729,68 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	  var proto = cls;
 	
-	  while (proto = prototypeOf(proto)) {
+	  while ((proto = prototypeOf(proto)) && proto !== Object) {
 	    if (proto === parent) return true;
 	  }
-	  return false;
+	  return parent === Object;
 	}
 	
-	var classOptionConstructorKey = 'constructor',
-	    classOptionExtendKey = 'extend';
+	function getStringProp(obj, prop, defVal) {
+	  var val = obj[prop];
 	
-	function dynamicClass(cfg, options) {
-	  var constructorKey = void 0,
-	      extendKey = void 0,
-	      constructor = void 0,
+	  return isString(val) ? val : defVal;
+	}
+	
+	function getConstructor(cfg, key) {
+	  var con = cfg[key];
+	  delete cfg[key];
+	  return isFunc(con) ? con : Object.prototype.constructor;
+	}
+	
+	function getSuperClass(cfg, key) {
+	  var cls = cfg[key];
+	  delete cfg[key];
+	  return isFunc(cls) ? cls : Object;
+	}
+	
+	function getStatics(cfg, key) {
+	  var statics = cfg[key];
+	  delete cfg[key];
+	  return isObject(statics) ? statics : undefined;
+	}
+	
+	function dynamicClass(cfg) {
+	  var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+	
+	  var constructor = void 0,
 	      superCls = void 0,
+	      statics = void 0,
 	      cls = void 0;
 	
 	  if (!isObject(cfg)) throw TypeError('Invalid Class Config: ' + cfg);
 	
-	  options = options || {};
-	  constructorKey = isString(options.constructor) ? options.constructor : classOptionConstructorKey;
-	  extendKey = isString(options.extend) ? options.extend : classOptionExtendKey;
-	  constructor = cfg[constructorKey];
-	  superCls = cfg[extendKey];
+	  constructor = getConstructor(cfg, getStringProp(options, 'constructor', 'constructor'));
+	  superCls = getSuperClass(cfg, getStringProp(options, 'extend', 'extend'));
+	  statics = getStatics(cfg, getStringProp(options, 'statics', 'statics'));
 	
-	  if (!isFunc(constructor) || constructor === Object) constructor = undefined;
-	  if (!isFunc(superCls) || superCls === Object) superCls = undefined;
+	  cls = function (constructor, superCls, cfg) {
+	    var proto = create(superCls.prototype);
+	    proto.constructor = constructor;
+	    proto['super'] = superCls.prototype;
 	
-	  cls = function (constructor, superCls) {
 	    function DynamicClass() {
-	      if (superCls && !(this instanceof superCls)) throw new TypeError('Cannot call a class as a function');
-	      if (constructor) {
-	        constructor.apply(this, arguments);
-	      } else if (superCls) {
-	        superCls.apply(this, arguments);
-	      }
+	      return this.constructor.apply(this, arguments);
 	    }
-	    var proto = {
-	      constructor: {
-	        value: DynamicClass,
-	        enumerable: false,
-	        writable: true,
-	        configurable: true
-	      }
-	    };
+	    each(cfg, function (val, key) {
+	      proto[key] = val;
+	    });
 	
-	    DynamicClass.prototype = superCls ? create(superCls.prototype, proto) : proto;
-	    setPrototypeOf(DynamicClass, superCls || {});
+	    DynamicClass.prototype = proto;
+	    setPrototypeOf(DynamicClass, superCls);
 	    return DynamicClass;
-	  }(constructor, superCls);
+	  }(constructor, superCls, cfg);
 	
-	  each(cfg, function (val, key) {
-	    if (key !== constructorKey) cls.prototype[key] = val;
-	  });
+	  if (statics) assign(cls, statics);
 	  return cls;
 	}
 

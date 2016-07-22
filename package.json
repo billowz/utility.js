@@ -1,7 +1,7 @@
 {
   "name": "utility.js",
   "description": "Simple utility for watching object changes.",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "homepage": "https://github.com/tao-zeng/utility.js",
   "author": "Tao Zeng <tao.zeng.zt@gmail.com>",
   "bugs": {
@@ -25,7 +25,8 @@
     ],
     "plugins": [
       "transform-es3-member-expression-literals",
-      "transform-es3-property-literals"
+      "transform-es3-property-literals",
+      "transform-remove-strict-mode"
     ]
   },
   "devDependencies": {
@@ -38,7 +39,7 @@
     "babel-loader": "^6.0.0",
     "babel-plugin-transform-es3-member-expression-literals": "^6.0.0",
     "babel-plugin-transform-es3-property-literals": "^6.0.0",
-    "babel-preset-es2015": "^6.0.0",
+    "babel-plugin-transform-remove-strict-mode": "^0.0.2",
     "babel-preset-es2015-loose": "^6.0.0",
     "codecov": "^1.0.1",
     "expect.js": "^0.3.1",

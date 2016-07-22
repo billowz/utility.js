@@ -1,5 +1,5 @@
 /*!
- * utility.js v0.0.3 built in Thu, 21 Jul 2016 10:44:17 GMT
+ * utility.js v0.0.5 built in Fri, 22 Jul 2016 07:28:31 GMT
  * Copyright (c) 2016 Tao Zeng <tao.zeng.zt@gmail.com>
  * Released under the MIT license
  * support IE6+ and other browsers
@@ -61,8 +61,6 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
-	
 	__webpack_require__(1);
 	var _ = __webpack_require__(3);
 	
@@ -75,8 +73,6 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 1 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
-	
 	var tf = __webpack_require__(2);
 	
 	window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || tf.request;
@@ -100,8 +96,6 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 2 */
 /***/ function(module, exports) {
 
-	"use strict";
-	
 	exports.__esModule = true;
 	exports.request = request;
 	exports.cancel = cancel;
@@ -125,8 +119,6 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 3 */
 /***/ function(module, exports) {
 
-	'use strict';
-	
 	exports.__esModule = true;
 	
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -682,7 +674,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  obj.__proto__ = proto;
 	};
 	
-	var assign = exports.assign = Object.assign || function assign(target) {
+	var _assign = Object.assign || function assign(target) {
 	  var source = void 0,
 	      key = void 0,
 	      i = 1,
@@ -697,6 +689,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return target;
 	};
 	
+	exports.assign = _assign;
 	function assignIf(target) {
 	  var source = void 0,
 	      key = void 0,
@@ -735,71 +728,69 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return parent === Object;
 	}
 	
-	function getStringProp(obj, prop, defVal) {
-	  var val = obj[prop];
+	// ==============================================
+	// dynamicClass
+	// ==============================================
+	var Base = function Base() {};
+	_assign(Base.prototype, {
+	  'super': function _super(args) {
+	    var method = arguments.callee.caller;
+	    if (!method) throw new Error('method is undefined on super class');
+	    method.$owner.superclass[method.$name].apply(this, args);
+	  }
+	});
+	_assign(Base, {
+	  extend: function extend(overrides) {
+	    var _this = this;
 	
-	  return isString(val) ? val : defVal;
-	}
-	
-	function getConstructor(cfg, key) {
-	  var con = cfg[key];
-	  delete cfg[key];
-	  return isFunc(con) ? con : Object.prototype.constructor;
-	}
-	
-	function getSuperClass(cfg, key) {
-	  var cls = cfg[key];
-	  delete cfg[key];
-	  return isFunc(cls) ? cls : Object;
-	}
-	
-	function getStatics(cfg, key) {
-	  var statics = cfg[key];
-	  delete cfg[key];
-	  return isObject(statics) ? statics : undefined;
-	}
-	
-	function dynamicClass(cfg) {
-	  var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-	
-	  var constructor = void 0,
-	      superCls = void 0,
-	      statics = void 0,
-	      cls = void 0;
-	
-	  if (!isObject(cfg)) throw TypeError('Invalid Class Config: ' + cfg);
-	
-	  constructor = getConstructor(cfg, getStringProp(options, 'constructor', 'constructor'));
-	  superCls = getSuperClass(cfg, getStringProp(options, 'extend', 'extend'));
-	  statics = getStatics(cfg, getStringProp(options, 'statics', 'statics'));
-	
-	  cls = function (constructor, superCls, cfg) {
-	    var proto = create(superCls.prototype);
-	    proto.constructor = constructor;
-	    proto['super'] = superCls.prototype;
-	
-	    function DynamicClass() {
-	      return this.constructor.apply(this, arguments);
+	    if (overrides) {
+	      (function () {
+	        var proto = _this.prototype;
+	        each(overrides, function (member, name) {
+	          if (isFunc(member)) {
+	            member.$owner = _this;
+	            member.$name = name;
+	          }
+	          proto[name] = member;
+	        });
+	        _this.assign(overrides.statics);
+	      })();
 	    }
-	    each(cfg, function (val, key) {
-	      proto[key] = val;
-	    });
+	    return this;
+	  },
+	  assign: function assign(statics) {
+	    if (statics) _assign(this, statics);
+	    return this;
+	  }
+	});
+	function dynamicClass(overrides) {
+	  var cls = function DynamicClass() {
+	    this.constructor.apply(this, arguments);
+	  },
+	      superclass = overrides.extend,
+	      superproto = void 0,
+	      proto = void 0;
 	
-	    DynamicClass.prototype = proto;
-	    setPrototypeOf(DynamicClass, superCls);
-	    return DynamicClass;
-	  }(constructor, superCls, cfg);
+	  _assign(cls, Base);
 	
-	  if (statics) assign(cls, statics);
-	  return cls;
+	  if (!isFunc(superclass) || superclass === Object) superclass = Base;
+	
+	  superproto = superclass.prototype;
+	
+	  proto = create(superproto);
+	
+	  cls.superclass = proto.superclass = superproto;
+	  cls.prototype = proto;
+	  setPrototypeOf(cls, superclass);
+	
+	  delete overrides.extend;
+	  return cls.extend(overrides);
 	}
 
 /***/ },
 /* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
-	
 	var _ = __webpack_require__(3);
 	
 	var Configuration = _.dynamicClass({
@@ -836,8 +827,6 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
-	
 	exports.__esModule = true;
 	var _ = __webpack_require__(3);
 	
@@ -889,7 +878,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var console = window.console;
 	
 	if (console && !console.debug) console.debug = function () {
-	  console.log.apply(this, arguments);
+	  Function.apply.call(console.log, console, arguments);
 	};
 	
 	var Logger = exports.Logger = _.dynamicClass({
@@ -904,7 +893,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return logLevels[this.level];
 	  },
 	  _print: function _print(level, args, trace) {
-	    console[level].apply(console, args);
+	    Function.apply.call(console[level], console, args);
 	    if (trace && console.trace) console.trace();
 	  },
 	  _log: function _log(level, args, trace) {

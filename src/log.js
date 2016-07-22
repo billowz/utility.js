@@ -54,7 +54,7 @@ let console = window.console
 
 if (console && !console.debug)
   console.debug = function() {
-    console.log.apply(this, arguments)
+    Function.apply.call(console.log, console, arguments)
   }
 
 export const Logger = _.dynamicClass({
@@ -69,7 +69,7 @@ export const Logger = _.dynamicClass({
     return logLevels[this.level]
   },
   _print(level, args, trace) {
-    console[level].apply(console, args)
+    Function.apply.call(console[level], console, args)
     if (trace && console.trace)
       console.trace()
   },

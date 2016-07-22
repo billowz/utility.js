@@ -580,58 +580,59 @@ export function isExtendOf(cls, parent) {
   return parent === Object
 }
 
-function getStringProp(obj, prop, defVal) {
-  let val = obj[prop]
-
-  return isString(val) ? val : defVal
-}
-
-function getConstructor(cfg, key) {
-  let con = cfg[key]
-  delete cfg[key]
-  return isFunc(con) ? con : Object.prototype.constructor
-}
-
-function getSuperClass(cfg, key) {
-  let cls = cfg[key]
-  delete cfg[key]
-  return isFunc(cls) ? cls : Object
-}
-
-function getStatics(cfg, key) {
-  let statics = cfg[key]
-  delete cfg[key]
-  return isObject(statics) ? statics : undefined
-}
-
-export function dynamicClass(cfg, options = {}) {
-  let constructor, superCls, statics, cls
-
-  if (!isObject(cfg))
-    throw TypeError(`Invalid Class Config: ${cfg}`)
-
-  constructor = getConstructor(cfg, getStringProp(options, 'constructor', 'constructor'))
-  superCls = getSuperClass(cfg, getStringProp(options, 'extend', 'extend'))
-  statics = getStatics(cfg, getStringProp(options, 'statics', 'statics'))
-
-  cls = (function(constructor, superCls, cfg) {
-    let proto = create(superCls.prototype)
-    proto.constructor = constructor
-    proto.super = superCls.prototype
-
-    function DynamicClass() {
-      return this.constructor.apply(this, arguments)
+// ==============================================
+// dynamicClass
+// ==============================================
+const Base = function() {}
+assign(Base.prototype, {
+  super(args) {
+    let method = arguments.callee.caller
+    if(!method)
+      throw new Error('method is undefined on super class')
+    method.$owner.superclass[method.$name].apply(this, args)
+  }
+})
+assign(Base, {
+  extend(overrides) {
+    if (overrides) {
+      let proto = this.prototype
+      each(overrides, (member, name) => {
+        if (isFunc(member)) {
+          member.$owner = this
+          member.$name = name
+        }
+        proto[name] = member
+      })
+      this.assign(overrides.statics)
     }
-    each(cfg, (val, key) => {
-      proto[key] = val
-    })
+    return this
+  },
+  assign(statics) {
+    if (statics)
+      assign(this, statics)
+    return this
+  }
+})
+export function dynamicClass(overrides) {
+  let cls = function DynamicClass() {
+      this.constructor.apply(this, arguments)
+    },
+    superclass = overrides.extend,
+    superproto, proto
 
-    DynamicClass.prototype = proto
-    setPrototypeOf(DynamicClass, superCls)
-    return DynamicClass
-  })(constructor, superCls, cfg)
+  assign(cls, Base)
 
-  if (statics)
-    assign(cls, statics)
-  return cls
+  if (!isFunc(superclass) || superclass === Object)
+    superclass = Base
+
+  superproto = superclass.prototype
+
+  proto = create(superproto)
+
+  cls.superclass = proto.superclass = superproto
+  cls.prototype = proto
+  setPrototypeOf(cls, superclass)
+
+  delete overrides.extend
+  return cls.extend(overrides)
 }

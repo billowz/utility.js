@@ -1,63 +1,66 @@
-const _ = require('./util')
+import * as _ from './util'
 
 const logLevels = ['debug', 'info', 'warn', 'error'],
   tmpEl = document.createElement('div'),
-  slice = Array.prototype.slice
-
-const SimulationConsole = _.dynamicClass({
-  constructor() {
-    tmpEl.innerHTML = `<div id="simulation_console"
+  slice = Array.prototype.slice,
+  SimulationConsole = _.dynamicClass({
+    constructor() {
+      tmpEl.innerHTML = `<div id="simulation_console"
     style="position:absolute; top:0; right:0; font-family:courier,monospace; background:#eee; font-size:10px; padding:10px; width:200px; height:200px;">
   <a style="float:right; padding-left:1em; padding-bottom:.5em; text-align:right;">Clear</a>
   <div id="simulation_console_body"></div>
 </div>`
-    this.el = tmpEl.childNodes[0]
-    this.clearEl = this.el.childNodes[0]
-    this.bodyEl = this.el.childNodes[1]
-  },
-  appendTo(el) {
-    el.appendChild(this.el)
-  },
-  log(style, msg) {
-    tmpEl.innerHTML = `<span style="${style}">${msg}</span>`
-    this.bodyEl.appendChild(tmpEl.childNodes[0])
-  },
-  parseMsg(args) {
-    let msg = args[0]
-
-    if (_.isString(msg)) {
-      let f = _._format.apply(_, args)
-
-      return [f.format].concat(slice.call(args, f.formatArgCount)).join(' ')
+      this.el = tmpEl.childNodes[0]
+      this.clearEl = this.el.childNodes[0]
+      this.bodyEl = this.el.childNodes[1]
+    },
+    appendTo(el) {
+      el.appendChild(this.el)
+    },
+    log(style, msg) {
+      tmpEl.innerHTML = `<span style="${style}">${msg}</span>`
+      this.bodyEl.appendChild(tmpEl.childNodes[0])
+    },
+    parseMsg(args) {
+      let msg = args[0]
+      if (_.isString(msg)) {
+        let f = _._format.apply(_, args)
+        return [f.format].concat(slice.call(args, f.formatArgCount)).join(' ')
+      }
+      return args.join(' ')
+    },
+    debug() {
+      this.log('color: red;', this.parseMsg(arguments))
+    },
+    info() {
+      this.log('color: red;', this.parseMsg(arguments))
+    },
+    warn() {
+      this.log('color: red;', this.parseMsg(arguments))
+    },
+    error() {
+      this.log('color: red;', this.parseMsg(arguments))
+    },
+    clear() {
+      this.bodyEl.innerHTML = ''
     }
-    return args.join(' ')
-  },
-  debug() {
-    this.log('color: red;', this.parseMsg(arguments))
-  },
-  info() {
-    this.log('color: red;', this.parseMsg(arguments))
-  },
-  warn() {
-    this.log('color: red;', this.parseMsg(arguments))
-  },
-  error() {
-    this.log('color: red;', this.parseMsg(arguments))
-  },
-  clear() {
-    this.bodyEl.innerHTML = ''
-  }
-})
-
+  })
 
 let console = window.console
-
 if (console && !console.debug)
-  console.debug = function() {
+  console.debug = () => {
     Function.apply.call(console.log, console, arguments)
   }
 
 export const Logger = _.dynamicClass({
+  statics: {
+    enableSimulationConsole() {
+      if (!console) {
+        console = new SimulationConsole()
+        console.appendTo(document.body)
+      }
+    }
+  },
   constructor(_module, level) {
     this.module = _module
     this.level = _.indexOf(logLevels, level || 'info')
@@ -70,15 +73,12 @@ export const Logger = _.dynamicClass({
   },
   _print(level, args, trace) {
     Function.apply.call(console[level], console, args)
-    if (trace && console.trace)
-      console.trace()
+    if (trace && console.trace) console.trace()
   },
   _log(level, args, trace) {
-    if (level < this.level || !console)
-      return
+    if (level < this.level || !console) return
     let msg = '[%s] %s -' + (_.isString(args[0]) ? ' ' + args.shift() : ''),
       errors = []
-
     args = _.filter(args, arg => {
       if (arg instanceof Error) {
         errors.push(arg)
@@ -105,12 +105,5 @@ export const Logger = _.dynamicClass({
     this._log(3, slice.call(arguments, 0))
   }
 })
-
-Logger.enableSimulationConsole = function enableSimulationConsole() {
-  if (!console) {
-    console = new SimulationConsole()
-    console.appendTo(document.body)
-  }
-}
 
 export const logger = new Logger('default', 'info')

@@ -1,6 +1,6 @@
-let _ = require('./util')
+import * as _ from './util'
 
-let Configuration = _.dynamicClass({
+export default _.dynamicClass({
   constructor(def) {
     this.cfg = def || {}
   },
@@ -15,15 +15,12 @@ let Configuration = _.dynamicClass({
     return this
   },
   config(cfg) {
-    if(cfg)
-      _.each(this.cfg, (val, key) => {
-        if (_.hasOwnProp(cfg, key))
-          this.cfg[key] = cfg[key]
-      })
+    if (cfg) _.each(this.cfg, (val, key) => {
+      if (_.hasOwnProp(cfg, key)) this.cfg[key] = cfg[key]
+    })
     return this
   },
   get(name) {
     return arguments.length ? this.cfg[name] : _.create(this.cfg)
   }
 })
-module.exports = Configuration

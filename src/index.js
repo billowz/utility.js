@@ -1,7 +1,10 @@
-require('./polyfill')
-const _ = require('./util')
+import * as tf from './timeoutframe'
+import Configuration from './Configuration'
+import * as log from './log'
+import * as _ from './util'
+import './polyfill'
 
-module.exports = _.assignIf(_, {
-  timeoutframe: require('./timeoutframe'),
-  Configuration: require('./Configuration')
-}, require('./log'))
+export default _.assignIf(_, {
+  timeoutframe: tf,
+  Configuration: Configuration
+}, log)

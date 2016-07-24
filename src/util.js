@@ -587,7 +587,7 @@ const Base = function() {}
 assign(Base.prototype, {
   super(args) {
     let method = arguments.callee.caller
-    if(!method)
+    if (!method)
       throw new Error('method is undefined on super class')
     method.$owner.superclass[method.$name].apply(this, args)
   }

@@ -3,7 +3,7 @@ let lastTime
 export function request(callback) {
   let currTime = new Date().getTime(),
     timeToCall = Math.max(0, 16 - (currTime - lastTime)),
-    reqId = setTimeout(function() {
+    reqId = setTimeout(() => {
       callback(currTime + timeToCall)
     }, timeToCall);
   lastTime = currTime + timeToCall

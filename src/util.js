@@ -20,7 +20,7 @@ export const regexpType = '[object RegExp]'
 export const nodeListType = '[object NodeList]'
 
 export function isDefine(obj) {
-  return obj === undefined
+  return obj !== undefined
 }
 
 export function isNull(obj) {
@@ -41,10 +41,6 @@ export function isFunc(obj) {
 
 export function isNumber(obj) {
   return toStr.call(obj) === numberType
-}
-
-export function isNaN(obj) {
-  return obj === NaN
 }
 
 export function isBool(obj) {
@@ -587,9 +583,11 @@ const Base = function() {}
 assign(Base.prototype, {
   super(args) {
     let method = arguments.callee.caller
-    if (!method)
-      throw new Error('method is undefined on super class')
     method.$owner.superclass[method.$name].apply(this, args)
+  },
+  superclass() {
+    let method = arguments.callee.caller
+    return method.$owner.superclass
   }
 })
 assign(Base, {
@@ -629,7 +627,7 @@ export function dynamicClass(overrides) {
 
   proto = create(superproto)
 
-  cls.superclass = proto.superclass = superproto
+  cls.superclass = superproto
   cls.prototype = proto
   setPrototypeOf(cls, superclass)
 

@@ -1,8 +1,15 @@
+/*
+ * utility.js v0.0.5 built in Mon, 25 Jul 2016 14:01:52 GMT
+ * Copyright (c) 2016 Tao Zeng <tao.zeng.zt@gmail.com>
+ * Released under the MIT license
+ * support IE6+ and other browsers
+ *https://github.com/tao-zeng/utility.js
+ */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-  typeof define === 'function' && define.amd ? define(factory) :
+  typeof define === 'function' && define.amd ? define('utility', factory) :
   (global.utility = factory());
-}(this, function () { 'use strict';
+}(this, function () {
 
   var lastTime = void 0;
 
@@ -46,7 +53,7 @@ var tf = Object.freeze({
   var nodeListType = '[object NodeList]';
 
   function isDefine(obj) {
-    return obj === undefined;
+    return obj !== undefined;
   }
 
   function isNull(obj) {
@@ -67,10 +74,6 @@ var tf = Object.freeze({
 
   function isNumber(obj) {
     return toStr.call(obj) === numberType;
-  }
-
-  function isNaN(obj) {
-    return obj === NaN;
   }
 
   function isBool(obj) {
@@ -595,8 +598,11 @@ var tf = Object.freeze({
   assign(Base.prototype, {
     'super': function (args) {
       var method = arguments.callee.caller;
-      if (!method) throw new Error('method is undefined on super class');
       method.$owner.superclass[method.$name].apply(this, args);
+    },
+    superclass: function () {
+      var method = arguments.callee.caller;
+      return method.$owner.superclass;
     }
   });
   assign(Base, {
@@ -639,7 +645,7 @@ var tf = Object.freeze({
 
     proto = create(superproto);
 
-    cls.superclass = proto.superclass = superproto;
+    cls.superclass = superproto;
     cls.prototype = proto;
     setPrototypeOf(cls, superclass);
 
@@ -665,7 +671,6 @@ var _ = Object.freeze({
     isArray: isArray,
     isFunc: isFunc,
     isNumber: isNumber,
-    isNaN: isNaN,
     isBool: isBool,
     isDate: isDate,
     isString: isString,
@@ -863,4 +868,3 @@ var log = Object.freeze({
   return index;
 
 }));
-//# sourceMappingURL=utility.js.map

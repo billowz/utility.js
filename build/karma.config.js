@@ -1,11 +1,12 @@
 var babel = require('./rollup-babel'),
   istanbul = require('rollup-plugin-istanbul'),
-  multiEntry = require('rollup-plugin-multi-entry')
+  multiEntry = require('rollup-plugin-multi-entry'),
+  coverage = require('rollup-plugin-coverage')
 
 module.exports = function(config) {
   config.set({
     browsers: ['Chrome'],
-    singleRun: true,
+    singleRun: false,
     transports: ['websocket', 'polling', 'jsonp-polling'],
     frameworks: ['mocha', 'expect'],
     reporters: ['spec', 'coverage'],
@@ -15,24 +16,27 @@ module.exports = function(config) {
     },
     rollupPreprocessor: {
       rollup: {
-        plugins: [babel(), multiEntry(), istanbul({
-          exclude: ['../src/**/*.spec.js']
+        plugins: [babel(), multiEntry(), coverage({
+          exclude: ['../src/**/*.spec.js'],
+          esModules: true,
+          coverageOptions: {
+            sourceMapWithCode: true
+          }
         })]
       },
       bundle: {
-        sourceMap: 'inline'
+        sourceMap: 'inline',
+        useStrict: false
       }
     },
     autoWatch: true,
     coverageReporter: {
       reporters: [{
-        type: 'lcov',
-        dir: '../coverage',
-        subdir: '.'
+        type: 'text',
+        dir: '../coverage/',
+        file: 'coverage.txt',
       }, {
-        type: 'text-summary',
-        dir: '../coverage',
-        subdir: '.'
+        type: 'text-summary'
       }]
     },
     concurrency: Infinity,

@@ -8,16 +8,16 @@ export function hasOwnProp(obj, prop) {
 // ==============================================
 // type utils
 // ==============================================
-export const argsType = '[object Arguments]'
-export const arrayType = '[object Array]'
-export const funcType = '[object Function]'
-export const boolType = '[object Boolean]'
-export const numberType = '[object Number]'
-export const dateType = '[object Date]'
-export const stringType = '[object String]'
-export const objectType = '[object Object]'
-export const regexpType = '[object RegExp]'
-export const nodeListType = '[object NodeList]'
+const argsType = '[object Arguments]',
+  arrayType = '[object Array]',
+  funcType = '[object Function]',
+  boolType = '[object Boolean]',
+  numberType = '[object Number]',
+  dateType = '[object Date]',
+  stringType = '[object String]',
+  objectType = '[object Object]',
+  regexpType = '[object RegExp]',
+  nodeListType = '[object NodeList]'
 
 export function isDefine(obj) {
   return obj !== undefined
@@ -74,7 +74,7 @@ export function isArrayLike(obj) {
     default:
       if (obj) {
         let length = obj.length
-        return isNumber(length) && length > 0 && (length - 1) in obj
+        return isNumber(length) && (length ? length > 0 && (length - 1) in obj : length === 0)
       }
       return false
   }
@@ -500,11 +500,14 @@ export function set(obj, expr, value) {
     _obj = obj
 
   for (; i < l; i++) {
-    if (isNil(_obj[prop]))
+    if (isNil(_obj[prop])) {
       _obj = _obj[prop] = {}
+    } else {
+      _obj = _obj[prop]
+    }
     prop = path[i + 1]
   }
-  obj[prop] = value
+  _obj[prop] = value
   return obj
 }
 

@@ -10,17 +10,17 @@ module.exports = function(config) {
     transports: ['websocket', 'polling', 'jsonp-polling'],
     frameworks: ['mocha', 'expect'],
     reporters: ['spec', 'coverage'],
-    files: ['../src/__tests__/**/*.spec.js'],
+    files: ['../src/**/*.spec.js'],
     preprocessors: {
-      '../src/__tests__/**/*.spec.js': ['rollup']
+      '../src/**/*.spec.js': ['rollup']
     },
     rollupPreprocessor: {
       rollup: {
         plugins: [babel(), multiEntry(), coverage({
+          // instrumenter, include, exclude, instrumenterConfig(codeGenerationOptions, noCompact)
           exclude: ['../src/**/*.spec.js'],
-          esModules: true,
-          coverageOptions: {
-            sourceMapWithCode: true
+          instrumenterConfig: {
+            noCompact: true
           }
         })]
       },

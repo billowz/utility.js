@@ -1,5 +1,5 @@
 /*
- * utility.js v0.0.5 built in Mon, 25 Jul 2016 14:01:52 GMT
+ * utility.js v0.0.5 built in Tue, 26 Jul 2016 01:51:02 GMT
  * Copyright (c) 2016 Tao Zeng <tao.zeng.zt@gmail.com>
  * Released under the MIT license
  * support IE6+ and other browsers

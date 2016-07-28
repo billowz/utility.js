@@ -7,14 +7,13 @@
   "version": "0.0.6",
   "scripts": {
     "lint": "eslint src build",
-    "build": "node build/build.js",
+    "build": "npm run lint && npm run signle-unit && node build/build.js",
     "unit": "karma start build/karma.unit.config.js",
     "signle-unit": "karma start build/karma.unit.config.js --single-run",
     "ci-sauce": "karma start build/karma.sauce.config.js",
     "ci-codecov": "cat coverage/*/lcov.info | codecov",
     "ci-unit": "karma start build/karma.config.js",
-    "ci": "npm run ci-unit npm run ci-codecov",
-    "prepublish": "npm run lint && npm run signle-unit && npm run build"
+    "ci": "npm run ci-unit npm run ci-codecov"
   },
   "homepage": "https://github.com/tao-zeng/utility.js",
   "author": "Tao Zeng <tao.zeng.zt@gmail.com>",

@@ -1,5 +1,5 @@
 /*
- * utility.js v0.0.5 built in Tue, 26 Jul 2016 01:51:02 GMT
+ * utility.js v0.0.6 built in Thu, 28 Jul 2016 11:19:03 GMT
  * Copyright (c) 2016 Tao Zeng <tao.zeng.zt@gmail.com>
  * Released under the MIT license
  * support IE6+ and other browsers
@@ -51,7 +51,6 @@ var tf = Object.freeze({
   var objectType = '[object Object]';
   var regexpType = '[object RegExp]';
   var nodeListType = '[object NodeList]';
-
   function isDefine(obj) {
     return obj !== undefined;
   }
@@ -107,7 +106,7 @@ var tf = Object.freeze({
       default:
         if (obj) {
           var length = obj.length;
-          return isNumber(length) && length > 0 && length - 1 in obj;
+          return isNumber(length) && (length ? length > 0 && length - 1 in obj : length === 0);
         }
         return false;
     }
@@ -519,10 +518,14 @@ var tf = Object.freeze({
         _obj = obj;
 
     for (; i < l; i++) {
-      if (isNil(_obj[prop])) _obj = _obj[prop] = {};
+      if (isNil(_obj[prop])) {
+        _obj = _obj[prop] = {};
+      } else {
+        _obj = _obj[prop];
+      }
       prop = path[i + 1];
     }
-    obj[prop] = value;
+    _obj[prop] = value;
     return obj;
   }
 
@@ -655,16 +658,6 @@ var tf = Object.freeze({
 
 var _ = Object.freeze({
     hasOwnProp: hasOwnProp,
-    argsType: argsType,
-    arrayType: arrayType,
-    funcType: funcType,
-    boolType: boolType,
-    numberType: numberType,
-    dateType: dateType,
-    stringType: stringType,
-    objectType: objectType,
-    regexpType: regexpType,
-    nodeListType: nodeListType,
     isDefine: isDefine,
     isNull: isNull,
     isNil: isNil,

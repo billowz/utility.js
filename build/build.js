@@ -11,7 +11,7 @@ var compile = require('./compile'),
 compile({
   module: pkg.module,
   useStrict: false,
-  entry: 'src/index.js',
-  dest: 'dist/utility.js',
+  entry: pkg.entry,
+  dest: pkg.main,
   banner: banner
 })

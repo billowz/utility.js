@@ -13,7 +13,7 @@
     "ci-sauce": "karma start build/karma.sauce.config.js",
     "ci-codecov": "cat coverage/*/lcov.info | codecov",
     "ci-unit": "karma start build/karma.config.js",
-    "ci": "npm run ci-unit npm run ci-codecov"
+    "ci": "npm run ci-unit && npm run ci-codecov"
   },
   "homepage": "https://github.com/tao-zeng/utility.js",
   "author": "Tao Zeng <tao.zeng.zt@gmail.com>",

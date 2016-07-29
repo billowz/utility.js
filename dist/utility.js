@@ -1,5 +1,5 @@
 /*
- * utility.js v0.0.6 built in Thu, 28 Jul 2016 14:37:57 GMT
+ * utility.js v0.0.6 built in Fri, 29 Jul 2016 05:02:37 GMT
  * Copyright (c) 2016 Tao Zeng <tao.zeng.zt@gmail.com>
  * Released under the MIT license
  * support IE6+ and other browsers
@@ -861,3 +861,4 @@ var log = Object.freeze({
   return index;
 
 }));
+//# sourceMappingURL=utility.js.map

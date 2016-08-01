@@ -2,34 +2,40 @@ var fs = require('fs'),
   zlib = require('zlib'),
   rollup = require('rollup').rollup,
   uglify = require('rollup-plugin-uglify'),
-  babel = require('./rollup-babel')
+  rollupOptions = 'entry,cache,external,paths,onwarn,plugins,treeshake,acorn'.split(',')
 
-function complie(opt, dest, plugins) {
-  return rollup({
-    entry: opt.entry,
-    plugins: [babel()].concat(opt.plugins || []).concat(plugins || [])
-  }).then(function(bundle) {
+function complie(opt, dest, mini) {
+  var cfg = {}
+  rollupOptions.forEach(function(name) {
+    cfg[name] = opt[name]
+  })
+  cfg.plugins = (opt.plugins || []).concat(mini ? [uglify()] : [])
+
+  return rollup(cfg).then(function(bundle) {
     var res = bundle.generate({
-      format: 'umd',
-      banner: opt.banner,
-      moduleId: opt.module,
-      moduleName: opt.module,
-      useStrict: opt.useStrict,
-      sourceMap: true,
-      dest: dest
-    })
+        format: 'umd',
+        banner: opt.banner,
+        moduleId: opt.module,
+        moduleName: opt.module,
+        useStrict: opt.useStrict,
+        sourceMap: true,
+        dest: dest,
+        globals: opt.globals
+      }),
+      code = res.code + '\n//# sourceMappingURL=' + dest.replace(/(.*\/)|(.*\\)/g, '') + '.map',
+      mapcode = JSON.stringify(res.map)
 
     return Promise.all([
-      write(dest, res.code + '\n//# sourceMappingURL=' + dest.replace(/(.*\/)|(.*\\)/g, '') + '.map'),
-      write(dest + '.map', JSON.stringify(res.map))
+      write(dest, code),
+      write(dest + '.map', mapcode)
     ])
   })
 }
 
-module.exports = function(opt) {
-  return complie(opt, opt.dest)
+module.exports = function(dest, opt) {
+  return complie(opt, dest)
     .then(function(dest) {
-      return complie(opt, dest[0].replace(/\.js$/, '.min.js'), [uglify()])
+      return complie(opt, dest[0].replace(/\.js$/, '.min.js'), true)
     })
     .then(function(dest) {
       return new Promise(function(resolve, reject) {

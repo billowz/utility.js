@@ -1,10 +1,9 @@
 {
   "name": "utility.js",
-  "module": "utility",
-  "main": "dist/utility.js",
-  "entry": "src/index.js",
+  "namespace": "utility",
+  "main": "src/index.js",
   "description": "Simple utility for watching object changes.",
-  "version": "0.0.7",
+  "version": "0.0.9",
   "scripts": {
     "lint": "eslint src build",
     "build": "npm run lint && npm run signle-unit && node build/build.js",

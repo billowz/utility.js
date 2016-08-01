@@ -1,5 +1,6 @@
 var compile = require('./compile'),
   pkg = require('../package.json'),
+  babel = require('./rollup-babel'),
   banner = `/*
  * ${pkg.name} v${pkg.version} built in ${new Date().toUTCString()}
  * Copyright (c) 2016 ${pkg.author}
@@ -8,10 +9,10 @@ var compile = require('./compile'),
  *${pkg.homepage}
  */`
 
-compile({
-  module: pkg.module,
+compile('dist/utility.js', {
+  module: pkg.namespace,
+  entry: pkg.main,
   useStrict: false,
-  entry: pkg.entry,
-  dest: pkg.main,
-  banner: banner
+  banner: banner,
+  plugins: [babel()]
 })

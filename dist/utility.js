@@ -1,5 +1,5 @@
 /*
- * utility.js v0.0.6 built in Fri, 29 Jul 2016 05:02:37 GMT
+ * utility.js v0.0.9 built in Mon, 01 Aug 2016 03:00:40 GMT
  * Copyright (c) 2016 Tao Zeng <tao.zeng.zt@gmail.com>
  * Released under the MIT license
  * support IE6+ and other browsers
@@ -729,7 +729,6 @@ var _ = Object.freeze({
     }
   });
 
-  var _arguments = arguments;
   var logLevels = ['debug', 'info', 'warn', 'error'];
   var tmpEl = document.createElement('div');
   var slice = Array.prototype.slice;
@@ -773,7 +772,7 @@ var _ = Object.freeze({
   });
   var console = window.console;
   if (console && !console.debug) console.debug = function () {
-    Function.apply.call(console.log, console, _arguments);
+    Function.apply.call(console.log, console, arguments);
   };
 
   var Logger = dynamicClass({

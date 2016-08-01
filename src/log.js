@@ -48,7 +48,7 @@ const logLevels = ['debug', 'info', 'warn', 'error'],
 
 let console = window.console
 if (console && !console.debug)
-  console.debug = () => {
+  console.debug = function() {
     Function.apply.call(console.log, console, arguments)
   }
 

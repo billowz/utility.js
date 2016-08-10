@@ -24,7 +24,7 @@ const logLevels = ['debug', 'info', 'warn', 'error'],
     parseMsg(args) {
       let msg = args[0]
       if (_.isString(msg)) {
-        let f = _._format.apply(_, args)
+        let f = _._format.apply(null, args)
         return [f.format].concat(slice.call(args, f.formatArgCount)).join(' ')
       }
       return args.join(' ')
@@ -52,7 +52,7 @@ if (console && !console.debug)
     Function.apply.call(console.log, console, arguments)
   }
 
-export const Logger = _.dynamicClass({
+const Logger = _.dynamicClass({
   statics: {
     enableSimulationConsole() {
       if (!console) {
@@ -106,4 +106,6 @@ export const Logger = _.dynamicClass({
   }
 })
 
-export const logger = new Logger('default', 'info')
+Logger.logger = new Logger('default', 'info')
+
+export default Logger

@@ -1,5 +1,14 @@
-const toStr = Object.prototype.toString,
-  hasOwn = Object.prototype.hasOwnProperty
+const toStr = Object.prototype.toString
+let hasOwn = Object.prototype.hasOwnProperty
+
+export function overrideHasOwnProlicy(fn) {
+  if (isFunc(fn))
+    hasOwn = fn
+}
+
+export function hasOwnProlicy() {
+  return hasOwn
+}
 
 export function hasOwnProp(obj, prop) {
   return hasOwn.call(obj, prop)
@@ -614,6 +623,7 @@ assign(Base, {
     return this
   }
 })
+
 export function dynamicClass(overrides) {
   let cls = function DynamicClass() {
       this.constructor.apply(this, arguments)

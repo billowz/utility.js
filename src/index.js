@@ -1,10 +1,11 @@
-import * as tf from './timeoutframe'
+import timeoutframe from './timeoutframe'
 import Configuration from './Configuration'
-import * as log from './log'
+import Logger from './log'
 import * as _ from './util'
 import './polyfill'
 
-export default _.assignIf(_, {
-  timeoutframe: tf,
-  Configuration: Configuration
-}, log)
+export default _.assignIf({
+  timeoutframe: timeoutframe,
+  Configuration: Configuration,
+  Logger: Logger
+}, _)

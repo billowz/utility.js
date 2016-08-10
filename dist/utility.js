@@ -1,5 +1,5 @@
 /*
- * utility.js v0.0.9 built in Mon, 01 Aug 2016 03:00:40 GMT
+ * utility.js v0.0.9 built in Tue, 09 Aug 2016 06:08:03 GMT
  * Copyright (c) 2016 Tao Zeng <tao.zeng.zt@gmail.com>
  * Released under the MIT license
  * support IE6+ and other browsers
@@ -27,13 +27,22 @@
     clearTimeout(reqId);
   }
 
-var tf = Object.freeze({
+  var timeoutframe = {
     request: request,
     cancel: cancel
-  });
+  };
 
   var toStr = Object.prototype.toString;
   var hasOwn = Object.prototype.hasOwnProperty;
+
+  function overrideHasOwnProlicy(fn) {
+    if (isFunc(fn)) hasOwn = fn;
+  }
+
+  function hasOwnProlicy() {
+    return hasOwn;
+  }
+
   function hasOwnProp(obj, prop) {
     return hasOwn.call(obj, prop);
   }
@@ -632,6 +641,7 @@ var tf = Object.freeze({
       return this;
     }
   });
+
   function dynamicClass(overrides) {
     var cls = function DynamicClass() {
       this.constructor.apply(this, arguments);
@@ -656,7 +666,9 @@ var tf = Object.freeze({
     return cls.extend(overrides);
   }
 
-var _ = Object.freeze({
+var _ = {
+    overrideHasOwnProlicy: overrideHasOwnProlicy,
+    hasOwnProlicy: hasOwnProlicy,
     hasOwnProp: hasOwnProp,
     isDefine: isDefine,
     isNull: isNull,
@@ -698,7 +710,7 @@ var _ = Object.freeze({
     create: create,
     isExtendOf: isExtendOf,
     dynamicClass: dynamicClass
-  });
+  };
 
   var Configuration = dynamicClass({
     constructor: function (def) {
@@ -749,7 +761,7 @@ var _ = Object.freeze({
     parseMsg: function (args) {
       var msg = args[0];
       if (isString(msg)) {
-        var f = _format.apply(_, args);
+        var f = _format.apply(null, args);
         return [f.format].concat(slice.call(args, f.formatArgCount)).join(' ');
       }
       return args.join(' ');
@@ -829,16 +841,11 @@ var _ = Object.freeze({
     }
   });
 
-  var logger = new Logger('default', 'info');
+  Logger.logger = new Logger('default', 'info');
 
-var log = Object.freeze({
-    Logger: Logger,
-    logger: logger
-  });
+  window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || timeoutframe.request;
 
-  window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || request;
-
-  window.cancelAnimationFrame = window.cancelAnimationFrame || window.webkitCancelAnimationFrame || window.mozCancelAnimationFrame || window.oCancelAnimationFrame || window.msCancelAnimationFrame || cancel;
+  window.cancelAnimationFrame = window.cancelAnimationFrame || window.webkitCancelAnimationFrame || window.mozCancelAnimationFrame || window.oCancelAnimationFrame || window.msCancelAnimationFrame || timeoutframe.cancel;
 
   function fixProto(Type, prop, val) {
     if (!Type.prototype[prop]) Type.prototype[prop] = val;
@@ -852,10 +859,11 @@ var log = Object.freeze({
     };
   });
 
-  var index = assignIf(_, {
-    timeoutframe: tf,
-    Configuration: Configuration
-  }, log);
+  var index = assignIf({
+    timeoutframe: timeoutframe,
+    Configuration: Configuration,
+    Logger: Logger
+  }, _);
 
   return index;
 

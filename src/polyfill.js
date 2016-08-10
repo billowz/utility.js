@@ -1,19 +1,16 @@
-import {
-  request,
-  cancel
-} from './timeoutframe'
+import timeoutframe from './timeoutframe'
 
 window.requestAnimationFrame = window.requestAnimationFrame ||
   window.webkitRequestAnimationFrame ||
   window.mozRequestAnimationFrame ||
   window.oRequestAnimationFrame ||
-  window.msRequestAnimationFrame || request
+  window.msRequestAnimationFrame || timeoutframe.request
 
 window.cancelAnimationFrame = window.cancelAnimationFrame ||
   window.webkitCancelAnimationFrame ||
   window.mozCancelAnimationFrame ||
   window.oCancelAnimationFrame ||
-  window.msCancelAnimationFrame || cancel
+  window.msCancelAnimationFrame || timeoutframe.cancel
 
 function fixProto(Type, prop, val) {
   if (!Type.prototype[prop]) Type.prototype[prop] = val

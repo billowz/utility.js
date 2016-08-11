@@ -1,3 +1,5 @@
+import './polyfill'
+
 const toStr = Object.prototype.toString
 let hasOwn = Object.prototype.hasOwnProperty
 

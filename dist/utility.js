@@ -1,5 +1,5 @@
 /*
- * utility.js v0.0.9 built in Tue, 09 Aug 2016 06:08:03 GMT
+ * utility.js v0.0.11 built in Thu, 11 Aug 2016 10:21:07 GMT
  * Copyright (c) 2016 Tao Zeng <tao.zeng.zt@gmail.com>
  * Released under the MIT license
  * support IE6+ and other browsers
@@ -30,6 +30,26 @@
   var timeoutframe = {
     request: request,
     cancel: cancel
+  };
+
+  window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || timeoutframe.request;
+
+  window.cancelAnimationFrame = window.cancelAnimationFrame || window.webkitCancelAnimationFrame || window.mozCancelAnimationFrame || window.oCancelAnimationFrame || window.msCancelAnimationFrame || timeoutframe.cancel;
+
+  function fixProto(Type, prop, val) {
+    if (!Type.prototype[prop]) Type.prototype[prop] = val;
+  }
+
+  fixProto(Function, 'bind', function bind(scope) {
+    var fn = this,
+        args = Array.prototype.slice.call(arguments, 1);
+    return function () {
+      return fn.apply(scope, args.concat(Array.prototype.slice.call(arguments)));
+    };
+  });
+
+  if (!Object.freeze) Object.freeze = function freeze(obj) {
+    return obj;
   };
 
   var toStr = Object.prototype.toString;
@@ -666,7 +686,7 @@
     return cls.extend(overrides);
   }
 
-var _ = {
+var _ = Object.freeze({
     overrideHasOwnProlicy: overrideHasOwnProlicy,
     hasOwnProlicy: hasOwnProlicy,
     hasOwnProp: hasOwnProp,
@@ -710,7 +730,7 @@ var _ = {
     create: create,
     isExtendOf: isExtendOf,
     dynamicClass: dynamicClass
-  };
+  });
 
   var Configuration = dynamicClass({
     constructor: function (def) {
@@ -842,22 +862,6 @@ var _ = {
   });
 
   Logger.logger = new Logger('default', 'info');
-
-  window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || timeoutframe.request;
-
-  window.cancelAnimationFrame = window.cancelAnimationFrame || window.webkitCancelAnimationFrame || window.mozCancelAnimationFrame || window.oCancelAnimationFrame || window.msCancelAnimationFrame || timeoutframe.cancel;
-
-  function fixProto(Type, prop, val) {
-    if (!Type.prototype[prop]) Type.prototype[prop] = val;
-  }
-
-  fixProto(Function, 'bind', function bind(scope) {
-    var fn = this,
-        args = Array.prototype.slice.call(arguments, 1);
-    return function () {
-      return fn.apply(scope, args.concat(Array.prototype.slice.call(arguments)));
-    };
-  });
 
   var index = assignIf({
     timeoutframe: timeoutframe,

@@ -23,3 +23,8 @@ fixProto(Function, 'bind', function bind(scope) {
     return fn.apply(scope, args.concat(Array.prototype.slice.call(arguments)))
   }
 })
+
+if (!Object.freeze)
+  Object.freeze = function freeze(obj) {
+    return obj
+  }

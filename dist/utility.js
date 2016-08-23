@@ -1,5 +1,5 @@
 /*
- * utility.js v0.0.11 built in Fri, 12 Aug 2016 04:22:28 GMT
+ * utility.js v0.0.12 built in Tue, 23 Aug 2016 10:07:41 GMT
  * Copyright (c) 2016 Tao Zeng <tao.zeng.zt@gmail.com>
  * Released under the MIT license
  * support IE6+ and other browsers
@@ -863,10 +863,206 @@ var _ = Object.freeze({
 
   Logger.logger = new Logger('default', 'info');
 
+  var IDGenerator = 1;
+
+  var LinkedList = dynamicClass({
+    statics: {
+      ListKey: '__UTILITY_LIST__'
+    },
+    constructor: function () {
+      this._id = IDGenerator++;
+      this._size = 0;
+      this._header = undefined;
+      this._tail = undefined;
+      this._version = 1;
+    },
+    _listObj: function (obj) {
+      return hasOwnProp(obj, LinkedList.ListKey) && obj[LinkedList.ListKey];
+    },
+    _desc: function (obj) {
+      var list = this._listObj(obj);
+
+      return list && list[this._id];
+    },
+    _getOrCreateDesc: function (obj) {
+      var list = this._listObj(obj) || (obj[LinkedList.ListKey] = {}),
+          desc = list[this._id];
+
+      return desc || (list[this._id] = {
+        obj: obj,
+        prev: undefined,
+        next: undefined,
+        version: this._version++
+      });
+    },
+    _unlink: function (desc) {
+      var prev = desc.prev,
+          next = desc.next;
+
+      if (prev) {
+        prev.next = next;
+      } else {
+        this._header = next;
+      }
+      if (next) {
+        next.prev = prev;
+      } else {
+        this._tail = prev;
+      }
+      this._size--;
+    },
+    _move: function (desc, prev) {
+      var header = this._header;
+
+      if (header === desc || desc.prev) this._unlink(desc);
+
+      desc.prev = prev;
+      if (prev) {
+        desc.next = prev.next;
+        prev.next = desc;
+      } else {
+        desc.next = header;
+        if (header) header.prev = desc;
+        this._header = desc;
+      }
+      if (this._tail === prev) this._tail = desc;
+      this._size++;
+    },
+    _remove: function (desc) {
+      var obj = desc.obj,
+          list = this._listObj(obj);
+
+      this._unlink(desc);
+      delete list[this._id];
+    },
+    push: function (obj) {
+      return this.last(obj);
+    },
+    pop: function () {
+      var desc = this._header;
+
+      if (desc) {
+        this._remove(desc);
+        return desc.obj;
+      }
+      return undefined;
+    },
+    shift: function () {
+      var desc = this._tail;
+
+      if (desc) {
+        this._remove(desc);
+        return desc.obj;
+      }
+      return undefined;
+    },
+    first: function (obj) {
+      if (arguments.length == 0) {
+        var desc = this._header;
+        return desc && desc.obj;
+      }
+      this._move(this._getOrCreateDesc(obj), undefined);
+      return this;
+    },
+    last: function (obj) {
+      if (arguments.length == 0) {
+        var desc = this._tail;
+        return desc && desc.obj;
+      }
+      this._move(this._getOrCreateDesc(obj), this._tail);
+      return this;
+    },
+    before: function (obj, target) {
+      if (arguments.length == 1) {
+        var desc = this._desc(obj),
+            prev = desc && desc.prev;
+
+        return prev && prev.obj;
+      }
+      this._move(this._getOrCreateDesc(obj), this._desc(target).prev);
+      return this;
+    },
+    after: function (obj, target) {
+      if (arguments.length == 1) {
+        var desc = this._desc(obj),
+            next = desc && desc.next;
+
+        return next && next.obj;
+      }
+      this._move(this._getOrCreateDesc(obj), this._desc(target));
+      return this;
+    },
+    contains: function (obj) {
+      return !!this._desc(obj);
+    },
+    remove: function (obj) {
+      var list = this._listObj(obj),
+          desc = void 0;
+
+      if (!list) return;
+      desc = list[this._id];
+      if (!desc) return;
+
+      this._unlink(desc);
+      delete list[this._id];
+      return this;
+    },
+    empty: function () {
+      this._header = undefined;
+      this._tail = undefined;
+      this._size = 0;
+      return this;
+    },
+    isEmpty: function () {
+      return this._size == 0;
+    },
+    size: function () {
+      return this._size;
+    },
+    each: function (callback, scope) {
+      var desc = this._header,
+          ver = this._version;
+
+      while (desc) {
+        if (desc.version < ver) {
+          if (callback.call(scope || this, desc.obj, this) === false) return false;
+        }
+        desc = desc.next;
+      }
+      return true;
+    },
+    map: function (callback, scope) {
+      var _this = this;
+
+      var rs = [];
+      this.each(function (obj) {
+        rs.push(callback.call(scope || _this, obj, _this));
+      });
+      return rs;
+    },
+    filter: function (callback, scope) {
+      var _this2 = this;
+
+      var rs = [];
+      this.each(function (obj) {
+        if (callback.call(scope || _this2, obj, _this2)) rs.push(obj);
+      });
+      return rs;
+    },
+    toArray: function () {
+      var rs = [];
+      this.each(function (obj) {
+        rs.push(obj);
+      });
+      return rs;
+    }
+  });
+
   var index = assignIf({
     timeoutframe: timeoutframe,
     Configuration: Configuration,
-    Logger: Logger
+    Logger: Logger,
+    LinkedList: LinkedList
   }, _);
 
   return index;

@@ -1,5 +1,5 @@
 /*
- * utility.js v0.0.12 built in Tue, 23 Aug 2016 10:07:41 GMT
+ * utility.js v0.0.13 built in Mon, 12 Sep 2016 05:12:26 GMT
  * Copyright (c) 2016 Tao Zeng <tao.zeng.zt@gmail.com>
  * Released under the MIT license
  * support IE6+ and other browsers
@@ -911,7 +911,7 @@ var _ = Object.freeze({
       }
       this._size--;
     },
-    _move: function (desc, prev) {
+    _move: function (desc, prev, alwaysMove) {
       var header = this._header;
 
       if (header === desc || desc.prev) this._unlink(desc);
@@ -1007,13 +1007,18 @@ var _ = Object.freeze({
       delete list[this._id];
       return this;
     },
-    empty: function () {
+    clean: function () {
+      var desc = this._header;
+      while (desc) {
+        delete this._listObj(desc.obj)[this._id];
+        desc = desc.next;
+      }
       this._header = undefined;
       this._tail = undefined;
       this._size = 0;
       return this;
     },
-    isEmpty: function () {
+    empty: function () {
       return this._size == 0;
     },
     size: function () {

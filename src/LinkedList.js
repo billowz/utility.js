@@ -48,7 +48,7 @@ const LinkedList = _.dynamicClass({
     }
     this._size--
   },
-  _move(desc, prev) {
+  _move(desc, prev, alwaysMove) {
     let header = this._header
 
     if (header === desc || desc.prev)
@@ -147,13 +147,18 @@ const LinkedList = _.dynamicClass({
     delete list[this._id]
     return this
   },
-  empty() {
+  clean() {
+    let desc = this._header
+    while (desc) {
+      delete this._listObj(desc.obj)[this._id]
+      desc = desc.next
+    }
     this._header = undefined
     this._tail = undefined
     this._size = 0
     return this
   },
-  isEmpty() {
+  empty() {
     return this._size == 0
   },
   size() {

@@ -6,7 +6,7 @@ const babel = require('rollup-plugin-babel'),
  * Copyright (c) 2016 ${pkg.author}
  * Released under the ${pkg.license} license
  * support IE6+ and other browsers
- *${pkg.homepage}
+ * ${pkg.homepage}
  */`
 
 module.exports = {

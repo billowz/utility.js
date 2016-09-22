@@ -3,7 +3,7 @@
   "namespace": "utility",
   "main": "src/index.js",
   "description": "Simple utility for watching object changes.",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "scripts": {
     "lint": "eslint src build",
     "build": "npm run lint && npm run signle-unit && node build/build.js",

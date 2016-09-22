@@ -1,9 +1,9 @@
 /*
- * utility.js v0.0.13 built in Mon, 12 Sep 2016 05:12:26 GMT
+ * utility.js v0.0.13 built in Thu, 22 Sep 2016 10:21:57 GMT
  * Copyright (c) 2016 Tao Zeng <tao.zeng.zt@gmail.com>
  * Released under the MIT license
  * support IE6+ and other browsers
- *https://github.com/tao-zeng/utility.js
+ * https://github.com/tao-zeng/utility.js
  */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -80,6 +80,19 @@
   var objectType = '[object Object]';
   var regexpType = '[object RegExp]';
   var nodeListType = '[object NodeList]';
+  function isPrimitive(obj) {
+    if (obj === null || obj === undefined) return true;
+    var type = toStr.call(obj);
+    switch (type) {
+      case boolType:
+      case numberType:
+      case stringType:
+      case funcType:
+        return true;
+    }
+    return false;
+  }
+
   function isDefine(obj) {
     return obj !== undefined;
   }
@@ -627,10 +640,11 @@
   // dynamicClass
   // ==============================================
   var Base = function () {};
+  var emptyArray = [];
   assign(Base.prototype, {
     'super': function (args) {
       var method = arguments.callee.caller;
-      method.$owner.superclass[method.$name].apply(this, args);
+      method.$owner.superclass[method.$name].apply(this, args || emptyArray);
     },
     superclass: function () {
       var method = arguments.callee.caller;
@@ -690,6 +704,7 @@ var _ = Object.freeze({
     overrideHasOwnProlicy: overrideHasOwnProlicy,
     hasOwnProlicy: hasOwnProlicy,
     hasOwnProp: hasOwnProp,
+    isPrimitive: isPrimitive,
     isDefine: isDefine,
     isNull: isNull,
     isNil: isNil,
@@ -871,7 +886,7 @@ var _ = Object.freeze({
     },
     constructor: function () {
       this._id = IDGenerator++;
-      this._size = 0;
+      this.length = 0;
       this._header = undefined;
       this._tail = undefined;
       this._version = 1;
@@ -909,7 +924,7 @@ var _ = Object.freeze({
       } else {
         this._tail = prev;
       }
-      this._size--;
+      this.length--;
     },
     _move: function (desc, prev, alwaysMove) {
       var header = this._header;
@@ -926,7 +941,7 @@ var _ = Object.freeze({
         this._header = desc;
       }
       if (this._tail === prev) this._tail = desc;
-      this._size++;
+      this.length++;
     },
     _remove: function (desc) {
       var obj = desc.obj,
@@ -1015,14 +1030,14 @@ var _ = Object.freeze({
       }
       this._header = undefined;
       this._tail = undefined;
-      this._size = 0;
+      this.length = 0;
       return this;
     },
     empty: function () {
-      return this._size == 0;
+      return this.length == 0;
     },
     size: function () {
-      return this._size;
+      return this.length;
     },
     each: function (callback, scope) {
       var desc = this._header,

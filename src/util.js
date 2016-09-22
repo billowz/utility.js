@@ -30,6 +30,20 @@ const argsType = '[object Arguments]',
   regexpType = '[object RegExp]',
   nodeListType = '[object NodeList]'
 
+export function isPrimitive(obj) {
+  if (obj === null || obj === undefined)
+    return true
+  let type = toStr.call(obj)
+  switch (type) {
+    case boolType:
+    case numberType:
+    case stringType:
+    case funcType:
+      return true
+  }
+  return false
+}
+
 export function isDefine(obj) {
   return obj !== undefined
 }
@@ -593,11 +607,13 @@ export function isExtendOf(cls, parent) {
 // ==============================================
 // dynamicClass
 // ==============================================
-const Base = function() {}
+const Base = function() {},
+  emptyArray = []
+
 assign(Base.prototype, {
   super(args) {
     let method = arguments.callee.caller
-    method.$owner.superclass[method.$name].apply(this, args)
+    method.$owner.superclass[method.$name].apply(this, args || emptyArray)
   },
   superclass() {
     let method = arguments.callee.caller

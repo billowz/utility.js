@@ -8,7 +8,7 @@ const LinkedList = _.dynamicClass({
   },
   constructor() {
     this._id = IDGenerator++;
-    this._size = 0
+    this.length = 0
     this._header = undefined
     this._tail = undefined
     this._version = 1
@@ -46,7 +46,7 @@ const LinkedList = _.dynamicClass({
     } else {
       this._tail = prev
     }
-    this._size--
+    this.length--
   },
   _move(desc, prev, alwaysMove) {
     let header = this._header
@@ -66,7 +66,7 @@ const LinkedList = _.dynamicClass({
     }
     if (this._tail === prev)
       this._tail = desc
-    this._size++
+    this.length++
   },
   _remove(desc) {
     let obj = desc.obj,
@@ -155,14 +155,14 @@ const LinkedList = _.dynamicClass({
     }
     this._header = undefined
     this._tail = undefined
-    this._size = 0
+    this.length = 0
     return this
   },
   empty() {
-    return this._size == 0
+    return this.length == 0
   },
   size() {
-    return this._size
+    return this.length
   },
   each(callback, scope) {
     let desc = this._header,

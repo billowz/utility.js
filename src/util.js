@@ -328,7 +328,7 @@ const plurals = [{
   }]
 
 export function plural(str) {
-  let plural, rep
+  let plural
   for (let i = 0; i < 4; i++) {
     plural = plurals[i]
     if (plural.reg.test(str))
@@ -337,9 +337,9 @@ export function plural(str) {
   return str
 }
 export function singular(str) {
-  let singulars, rep
+  let singular
   for (let i = 0; i < 4; i++) {
-    singular = plurals[i]
+    singular = singulars[i]
     if (singular.reg.test(str))
       return str.replace(singular.reg, singular.rep)
   }

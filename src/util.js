@@ -300,6 +300,51 @@ export function thousandSeparate(number) {
   return split.join('.')
 }
 
+const plurals = [{
+    reg: /([a-zA-Z]+[^aeiou])y$/,
+    rep: '$1ies'
+  }, {
+    reg: /([a-zA-Z]+[aeiou]y)$/,
+    rep: '$1s'
+  }, {
+    reg: /([a-zA-Z]+[sxzh])$/,
+    rep: '$1es'
+  }, {
+    reg: /([a-zA-Z]+[^sxzhy])$/,
+    rep: '$1s'
+  }],
+  singulars = [{
+    reg: /([a-zA-Z]+[^aeiou])ies$/,
+    rep: '$1y'
+  }, {
+    reg: /([a-zA-Z]+[aeiou])s$/,
+    rep: '$1'
+  }, {
+    reg: /([a-zA-Z]+[sxzh])es$/,
+    rep: '$1'
+  }, {
+    reg: /([a-zA-Z]+[^sxzhy])s$/,
+    rep: '$1'
+  }]
+
+export function plural(str) {
+  let plural, rep
+  for (let i = 0; i < 4; i++) {
+    plural = plurals[i]
+    if (plural.reg.test(str))
+      return str.replace(plural.reg, plural.rep)
+  }
+  return str
+}
+export function singular(str) {
+  let singulars, rep
+  for (let i = 0; i < 4; i++) {
+    singular = plurals[i]
+    if (singular.reg.test(str))
+      return str.replace(singular.reg, singular.rep)
+  }
+  return str
+}
 // ==============================================
 // object utils
 // ==============================================

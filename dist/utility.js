@@ -1,5 +1,5 @@
 /*
- * utility.js v0.0.15 built in Tue, 27 Sep 2016 03:03:46 GMT
+ * utility.js v0.0.16 built in Tue, 27 Sep 2016 03:49:28 GMT
  * Copyright (c) 2016 Tao Zeng <tao.zeng.zt@gmail.com>
  * Released under the MIT license
  * support IE6+ and other browsers
@@ -339,6 +339,37 @@
     return split.join('.');
   }
 
+  var plurals = [{
+    reg: /([a-zA-Z]+[^aeiou])y$/,
+    rep: '$1ies'
+  }, {
+    reg: /([a-zA-Z]+[aeiou]y)$/,
+    rep: '$1s'
+  }, {
+    reg: /([a-zA-Z]+[sxzh])$/,
+    rep: '$1es'
+  }, {
+    reg: /([a-zA-Z]+[^sxzhy])$/,
+    rep: '$1s'
+  }];
+  function plural(str) {
+    var plural = void 0,
+        rep = void 0;
+    for (var i = 0; i < 4; i++) {
+      plural = plurals[i];
+      if (plural.reg.test(str)) return str.replace(plural.reg, plural.rep);
+    }
+    return str;
+  }
+  function singular(str) {
+    var singulars = void 0,
+        rep = void 0;
+    for (var i = 0; i < 4; i++) {
+      singular = plurals[i];
+      if (singular.reg.test(str)) return str.replace(singular.reg, singular.rep);
+    }
+    return str;
+  }
   // ==============================================
   // object utils
   // ==============================================
@@ -579,6 +610,8 @@ var _ = Object.freeze({
     rtrim: rtrim,
     trim: trim,
     thousandSeparate: thousandSeparate,
+    plural: plural,
+    get singular () { return singular; },
     parseExpr: parseExpr,
     get: get,
     has: has,

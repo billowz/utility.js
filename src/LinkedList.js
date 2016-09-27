@@ -139,13 +139,12 @@ const LinkedList = _.dynamicClass({
     let list = this._listObj(obj),
       desc
 
-    if (!list) return
-    desc = list[this._id]
-    if (!desc) return
-
-    this._unlink(desc)
-    delete list[this._id]
-    return this
+    if (list && (desc = list[this._id])) {
+      this._unlink(desc)
+      delete list[this._id]
+      return true
+    }
+    return false
   },
   clean() {
     let desc = this._header

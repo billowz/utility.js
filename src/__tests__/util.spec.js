@@ -1,4 +1,5 @@
 import * as _ from '../util'
+import format from '../format'
 
 describe("is", () => {
 
@@ -160,7 +161,7 @@ describe("string utils", () => {
     expect(_.trim(' ab c ')).to.equal('ab c')
   })
   it('format', () => {
-    expect(_.format('%s %d', 'abc', 1)).to.equal('abc 1')
+    expect(format('%s %d', 'abc', 1)).to.equal('abc 1')
   })
   it('parseExpr', () => {
     expect(_.parseExpr('a.b.c')).to.eql(['a', 'b', 'c'])

@@ -1,4 +1,5 @@
 import * as _ from './util'
+import format from './format'
 
 const logLevels = ['debug', 'info', 'warn', 'error'],
   tmpEl = document.createElement('div'),
@@ -24,8 +25,8 @@ const logLevels = ['debug', 'info', 'warn', 'error'],
     parseMsg(args) {
       let msg = args[0]
       if (_.isString(msg)) {
-        let f = _._format.apply(null, args)
-        return [f.format].concat(slice.call(args, f.formatArgCount)).join(' ')
+        let f = format.format.apply(null, args)
+        return [f.format].concat(slice.call(args, f.count)).join(' ')
       }
       return args.join(' ')
     },

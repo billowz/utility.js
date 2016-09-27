@@ -1,24 +1,24 @@
 /*
- * utility.js v0.0.16 built in Tue, 27 Sep 2016 07:45:55 GMT
+ * utility.js v0.0.17 built in Tue, 27 Sep 2016 07:53:55 GMT
  * Copyright (c) 2016 Tao Zeng <tao.zeng.zt@gmail.com>
  * Released under the MIT license
  * support IE6+ and other browsers
  * https://github.com/tao-zeng/utility.js
  */
-(function(global, factory) {
+(function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-    typeof define === 'function' && define.amd ? define('utility', factory) :
-    (global.utility = factory());
-}(this, function() {
+  typeof define === 'function' && define.amd ? define('utility', factory) :
+  (global.utility = factory());
+}(this, function () {
 
   var lastTime = void 0;
 
   function request(callback) {
     var currTime = new Date().getTime(),
-      timeToCall = Math.max(0, 16 - (currTime - lastTime)),
-      reqId = setTimeout(function() {
-        callback(currTime + timeToCall);
-      }, timeToCall);
+        timeToCall = Math.max(0, 16 - (currTime - lastTime)),
+        reqId = setTimeout(function () {
+      callback(currTime + timeToCall);
+    }, timeToCall);
     lastTime = currTime + timeToCall;
     return reqId;
   }
@@ -42,8 +42,8 @@
 
   fixProto(Function, 'bind', function bind(scope) {
     var fn = this,
-      args = Array.prototype.slice.call(arguments, 1);
-    return function() {
+        args = Array.prototype.slice.call(arguments, 1);
+    return function () {
       return fn.apply(scope, args.concat(Array.prototype.slice.call(arguments)));
     };
   });
@@ -80,7 +80,6 @@
   var objectType = '[object Object]';
   var regexpType = '[object RegExp]';
   var nodeListType = '[object NodeList]';
-
   function isPrimitive(obj) {
     if (obj === null || obj === undefined) return true;
     var type = toStr.call(obj);
@@ -160,7 +159,7 @@
   // ==============================================
   function _eachObj(obj, callback, scope, own) {
     var key = void 0,
-      isOwn = void 0;
+        isOwn = void 0;
 
     scope = scope || obj;
     for (key in obj) {
@@ -174,7 +173,7 @@
 
   function _eachArray(obj, callback, scope) {
     var i = 0,
-      j = obj.length;
+        j = obj.length;
 
     scope = scope || obj;
     for (; i < j; i++) {
@@ -214,12 +213,12 @@
 
     if (isArrayLike(obj)) {
       ret = [];
-      _eachArray(obj, function(val) {
+      _eachArray(obj, function (val) {
         if (callback.apply(this, arguments)) ret.push(val);
       }, scope);
     } else {
       ret = {};
-      if (!isNil(obj)) _eachObj(obj, function(val, key) {
+      if (!isNil(obj)) _eachObj(obj, function (val, key) {
         if (callback.apply(this, arguments)) ret[key] = val;
       }, scope, own);
     }
@@ -229,7 +228,7 @@
   function aggregate(obj, callback, defVal, scope, own) {
     var rs = defVal;
 
-    each(obj, function(val, key, obj, isOwn) {
+    each(obj, function (val, key, obj, isOwn) {
       rs = callback.call(this, rs, val, key, obj, isOwn);
     }, scope, own);
     return rs;
@@ -238,7 +237,7 @@
   function keys(obj, filter, scope, own) {
     var keys = [];
 
-    each(obj, function(val, key) {
+    each(obj, function (val, key) {
       if (!filter || filter.apply(this, arguments)) keys.push(key);
     }, scope, own);
     return keys;
@@ -246,7 +245,7 @@
 
   function _indexOfArray(array, val) {
     var i = 0,
-      l = array.length;
+        l = array.length;
 
     for (; i < l; i++) {
       if (array[i] === val) return i;
@@ -290,7 +289,7 @@
   function convert(obj, keyGen, valGen, scope, own) {
     var o = {};
 
-    each(obj, function(val, key) {
+    each(obj, function (val, key) {
       o[keyGen ? keyGen.apply(this, arguments) : key] = valGen ? valGen.apply(this, arguments) : val;
     }, scope, own);
     return o;
@@ -299,7 +298,7 @@
   function reverseConvert(obj, valGen, scope, own) {
     var o = {};
 
-    each(obj, function(val, key) {
+    each(obj, function (val, key) {
       o[val] = valGen ? valGen.apply(this, arguments) : key;
     }, scope, own);
     return o;
@@ -312,7 +311,6 @@
   var regLeftTrim = /^\s+/;
   var regRightTrim = /\s+$/;
   var regTrim = /(^\s+)|(\s+$)/g;
-
   function _uppercase(k) {
     return k.toUpperCase();
   }
@@ -367,7 +365,6 @@
     reg: /([a-zA-Z]+[^sxzhy])s$/,
     rep: '$1'
   }];
-
   function plural(str) {
     var plural = void 0;
     for (var i = 0; i < 4; i++) {
@@ -376,7 +373,6 @@
     }
     return str;
   }
-
   function singular(str) {
     var singular = void 0;
     for (var i = 0; i < 4; i++) {
@@ -391,19 +387,18 @@
   var exprCache = {};
   var regPropertyName = /[^.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\n\\]|\\.)*?)\2)\]/g;
   var regEscapeChar = /\\(\\)?/g;
-
   function parseExpr(expr, autoCache) {
     if (isArray(expr)) {
       return expr;
     } else if (isString(expr)) {
-      var _ret = function() {
+      var _ret = function () {
         var rs = exprCache[expr];
 
         if (rs) return {
-          v: rs
-        };
+            v: rs
+          };
         rs = autoCache ? exprCache[expr] = [] : [];
-        expr.replace(regPropertyName, function(match, number, quote, string) {
+        expr.replace(regPropertyName, function (match, number, quote, string) {
           rs.push(quote ? string.replace(regEscapeChar, '$1') : number || match);
         });
         return {
@@ -419,9 +414,9 @@
 
   function get(obj, expr, defVal, lastOwn, own) {
     var i = 0,
-      path = parseExpr(expr, true),
-      l = path.length - 1,
-      prop = void 0;
+        path = parseExpr(expr, true),
+        l = path.length - 1,
+        prop = void 0;
 
     while (!isNil(obj) && i < l) {
       prop = path[i++];
@@ -434,9 +429,9 @@
 
   function has(obj, expr, lastOwn, own) {
     var i = 0,
-      path = parseExpr(expr, true),
-      l = path.length - 1,
-      prop = void 0;
+        path = parseExpr(expr, true),
+        l = path.length - 1,
+        prop = void 0;
 
     while (!isNil(obj) && i < l) {
       prop = path[i++];
@@ -449,10 +444,10 @@
 
   function set(obj, expr, value) {
     var i = 0,
-      path = parseExpr(expr, true),
-      l = path.length - 1,
-      prop = path[0],
-      _obj = obj;
+        path = parseExpr(expr, true),
+        l = path.length - 1,
+        prop = path[0],
+        _obj = obj;
 
     for (; i < l; i++) {
       if (isNil(_obj[prop])) {
@@ -480,9 +475,9 @@
 
   var assign = Object.assign || function assign(target) {
     var source = void 0,
-      key = void 0,
-      i = 1,
-      l = arguments.length;
+        key = void 0,
+        i = 1,
+        l = arguments.length;
 
     for (; i < l; i++) {
       source = arguments[i];
@@ -495,9 +490,9 @@
 
   function assignIf(target) {
     var source = void 0,
-      key = void 0,
-      i = 1,
-      l = arguments.length;
+        key = void 0,
+        i = 1,
+        l = arguments.length;
 
     for (; i < l; i++) {
       source = arguments[i];
@@ -510,11 +505,11 @@
 
   function emptyFunc() {}
 
-  var create = Object.create || function(parent, props) {
+  var create = Object.create || function (parent, props) {
     emptyFunc.prototype = parent;
     var obj = new emptyFunc();
     emptyFunc.prototype = undefined;
-    if (props) each(props, function(prop, name) {
+    if (props) each(props, function (prop, name) {
       obj[name] = prop.value;
     });
     return obj;
@@ -534,26 +529,26 @@
   // ==============================================
   // dynamicClass
   // ==============================================
-  var Base = function() {};
+  var Base = function () {};
   var emptyArray = [];
   assign(Base.prototype, {
-    'super': function(args) {
+    'super': function (args) {
       var method = arguments.callee.caller;
       method.$owner.superclass[method.$name].apply(this, args || emptyArray);
     },
-    superclass: function() {
+    superclass: function () {
       var method = arguments.callee.caller;
       return method.$owner.superclass;
     }
   });
   assign(Base, {
-    extend: function(overrides) {
+    extend: function (overrides) {
       var _this = this;
 
       if (overrides) {
-        (function() {
+        (function () {
           var proto = _this.prototype;
-          each(overrides, function(member, name) {
+          each(overrides, function (member, name) {
             if (isFunc(member)) {
               member.$owner = _this;
               member.$name = name;
@@ -565,7 +560,7 @@
       }
       return this;
     },
-    assign: function(statics) {
+    assign: function (statics) {
       if (statics) assign(this, statics);
       return this;
     }
@@ -573,11 +568,11 @@
 
   function dynamicClass(overrides) {
     var cls = function DynamicClass() {
-        this.constructor.apply(this, arguments);
-      },
-      superclass = overrides.extend,
-      superproto = void 0,
-      proto = void 0;
+      this.constructor.apply(this, arguments);
+    },
+        superclass = overrides.extend,
+        superproto = void 0,
+        proto = void 0;
 
     assign(cls, Base);
 
@@ -595,7 +590,7 @@
     return cls.extend(overrides);
   }
 
-  var _ = Object.freeze({
+var _ = Object.freeze({
     overrideHasOwnProlicy: overrideHasOwnProlicy,
     hasOwnProlicy: hasOwnProlicy,
     hasOwnProp: hasOwnProp,
@@ -644,14 +639,14 @@
   });
 
   var Configuration = dynamicClass({
-    constructor: function(def) {
+    constructor: function (def) {
       this.cfg = def || {};
     },
-    register: function(name, defVal) {
+    register: function (name, defVal) {
       var _this = this;
 
       if (arguments.length == 1) {
-        each(name, function(val, name) {
+        each(name, function (val, name) {
           _this.cfg[name] = val;
         });
       } else {
@@ -659,25 +654,24 @@
       }
       return this;
     },
-    config: function(cfg) {
+    config: function (cfg) {
       var _this2 = this;
 
-      if (cfg) each(this.cfg, function(val, key) {
+      if (cfg) each(this.cfg, function (val, key) {
         if (hasOwnProp(cfg, key)) _this2.cfg[key] = cfg[key];
       });
       return this;
     },
-    get: function(name) {
+    get: function (name) {
       return arguments.length ? this.cfg[name] : create(this.cfg);
     }
   });
 
   var reg = /%(\d+\$|\*|\$)?([-+#0, ]*)?(\d+\$?|\*|\$)?(\.\d+\$?|\.\*|\.\$)?([%sfducboxXeEgGpP])/g;
-  var thousandSeparationReg$1 = /(\d)(?=(\d{3})+(?!\d))/g;
-
+var   thousandSeparationReg$1 = /(\d)(?=(\d{3})+(?!\d))/g;
   function pad(str, len, chr, leftJustify) {
     var l = str.length,
-      padding = l >= len ? '' : Array(1 + len - l >>> 0).join(chr);
+        padding = l >= len ? '' : Array(1 + len - l >>> 0).join(chr);
 
     return leftJustify ? str + padding : padding + str;
   }
@@ -706,7 +700,7 @@
       return args[i.slice(0, -1) - 1];
     }
 
-    str = str.replace(reg, function(match, i, flags, minWidth, precision, type) {
+    str = str.replace(reg, function (match, i, flags, minWidth, precision, type) {
       if (type === '%') return '%';
 
       var value = parseArg(i);
@@ -717,14 +711,14 @@
       console.log('match:' + match + ', index:' + i + '/' + value + ', flags:' + flags + ', width:' + minWidth + ', prec:' + precision + ', type:' + type);
 
       var leftJustify = false,
-        positivePrefix = '',
-        zeroPad = false,
-        prefixBaseX = false,
-        thousandSeparation = false,
-        prefix = void 0,
-        base = void 0;
+          positivePrefix = '',
+          zeroPad = false,
+          prefixBaseX = false,
+          thousandSeparation = false,
+          prefix = void 0,
+          base = void 0;
 
-      if (flags) each(flags, function(c) {
+      if (flags) each(flags, function (c) {
         switch (c) {
           case ' ':
           case '+':
@@ -786,7 +780,7 @@
             }
 
             var method = void 0,
-              ltype = type.toLowerCase();
+                ltype = type.toLowerCase();
 
             if ('p' != ltype) {
               method = ['toExponential', 'toFixed', 'toPrecision']['efg'.indexOf(ltype)];
@@ -850,20 +844,20 @@
   var tmpEl = document.createElement('div');
   var slice = Array.prototype.slice;
   var SimulationConsole = dynamicClass({
-    constructor: function() {
+    constructor: function () {
       tmpEl.innerHTML = '<div id="simulation_console"\n    style="position:absolute; top:0; right:0; font-family:courier,monospace; background:#eee; font-size:10px; padding:10px; width:200px; height:200px;">\n  <a style="float:right; padding-left:1em; padding-bottom:.5em; text-align:right;">Clear</a>\n  <div id="simulation_console_body"></div>\n</div>';
       this.el = tmpEl.childNodes[0];
       this.clearEl = this.el.childNodes[0];
       this.bodyEl = this.el.childNodes[1];
     },
-    appendTo: function(el) {
+    appendTo: function (el) {
       el.appendChild(this.el);
     },
-    log: function(style, msg) {
+    log: function (style, msg) {
       tmpEl.innerHTML = '<span style="' + style + '">' + msg + '</span>';
       this.bodyEl.appendChild(tmpEl.childNodes[0]);
     },
-    parseMsg: function(args) {
+    parseMsg: function (args) {
       var msg = args[0];
       if (isString(msg)) {
         var f = index$1.format.apply(null, args);
@@ -871,77 +865,77 @@
       }
       return args.join(' ');
     },
-    debug: function() {
+    debug: function () {
       this.log('color: red;', this.parseMsg(arguments));
     },
-    info: function() {
+    info: function () {
       this.log('color: red;', this.parseMsg(arguments));
     },
-    warn: function() {
+    warn: function () {
       this.log('color: red;', this.parseMsg(arguments));
     },
-    error: function() {
+    error: function () {
       this.log('color: red;', this.parseMsg(arguments));
     },
-    clear: function() {
+    clear: function () {
       this.bodyEl.innerHTML = '';
     }
   });
   var console$1 = window.console;
-  if (console$1 && !console$1.debug) console$1.debug = function() {
+  if (console$1 && !console$1.debug) console$1.debug = function () {
     Function.apply.call(console$1.log, console$1, arguments);
   };
 
   var Logger = dynamicClass({
     statics: {
-      enableSimulationConsole: function() {
+      enableSimulationConsole: function () {
         if (!console$1) {
           console$1 = new SimulationConsole();
           console$1.appendTo(document.body);
         }
       }
     },
-    constructor: function(_module, level) {
+    constructor: function (_module, level) {
       this.module = _module;
       this.level = indexOf(logLevels, level || 'info');
     },
-    setLevel: function(level) {
+    setLevel: function (level) {
       this.level = indexOf(logLevels, level || 'info');
     },
-    getLevel: function() {
+    getLevel: function () {
       return logLevels[this.level];
     },
-    _print: function(level, args, trace) {
+    _print: function (level, args, trace) {
       Function.apply.call(console$1[level], console$1, args);
       if (trace && console$1.trace) console$1.trace();
     },
-    _log: function(level, args, trace) {
+    _log: function (level, args, trace) {
       if (level < this.level || !console$1) return;
       var msg = '[%s] %s -' + (isString(args[0]) ? ' ' + args.shift() : ''),
-        errors = [];
-      args = filter(args, function(arg) {
+          errors = [];
+      args = filter(args, function (arg) {
         if (arg instanceof Error) {
           errors.push(arg);
           return false;
         }
         return true;
       });
-      each(errors, function(err) {
+      each(errors, function (err) {
         args.push.call(args, err.message, '\n', err.stack);
       });
       level = logLevels[level];
       this._print(level, [msg, level, this.module].concat(args), trace);
     },
-    debug: function() {
+    debug: function () {
       this._log(0, slice.call(arguments, 0));
     },
-    info: function() {
+    info: function () {
       this._log(1, slice.call(arguments, 0));
     },
-    warn: function() {
+    warn: function () {
       this._log(2, slice.call(arguments, 0));
     },
-    error: function() {
+    error: function () {
       this._log(3, slice.call(arguments, 0));
     }
   });
@@ -954,24 +948,24 @@
     statics: {
       ListKey: '__UTILITY_LIST__'
     },
-    constructor: function() {
+    constructor: function () {
       this._id = IDGenerator++;
       this.length = 0;
       this._header = undefined;
       this._tail = undefined;
       this._version = 1;
     },
-    _listObj: function(obj) {
+    _listObj: function (obj) {
       return hasOwnProp(obj, LinkedList.ListKey) && obj[LinkedList.ListKey];
     },
-    _desc: function(obj) {
+    _desc: function (obj) {
       var list = this._listObj(obj);
 
       return list && list[this._id];
     },
-    _getOrCreateDesc: function(obj) {
+    _getOrCreateDesc: function (obj) {
       var list = this._listObj(obj) || (obj[LinkedList.ListKey] = {}),
-        desc = list[this._id];
+          desc = list[this._id];
 
       return desc || (list[this._id] = {
         obj: obj,
@@ -980,9 +974,9 @@
         version: this._version++
       });
     },
-    _unlink: function(desc) {
+    _unlink: function (desc) {
       var prev = desc.prev,
-        next = desc.next;
+          next = desc.next;
 
       if (prev) {
         prev.next = next;
@@ -996,7 +990,7 @@
       }
       this.length--;
     },
-    _move: function(desc, prev, alwaysMove) {
+    _move: function (desc, prev, alwaysMove) {
       var header = this._header;
 
       if (header === desc || desc.prev) this._unlink(desc);
@@ -1013,17 +1007,17 @@
       if (this._tail === prev) this._tail = desc;
       this.length++;
     },
-    _remove: function(desc) {
+    _remove: function (desc) {
       var obj = desc.obj,
-        list = this._listObj(obj);
+          list = this._listObj(obj);
 
       this._unlink(desc);
       delete list[this._id];
     },
-    push: function(obj) {
+    push: function (obj) {
       return this.last(obj);
     },
-    pop: function() {
+    pop: function () {
       var desc = this._header;
 
       if (desc) {
@@ -1032,7 +1026,7 @@
       }
       return undefined;
     },
-    shift: function() {
+    shift: function () {
       var desc = this._tail;
 
       if (desc) {
@@ -1041,7 +1035,7 @@
       }
       return undefined;
     },
-    first: function(obj) {
+    first: function (obj) {
       if (arguments.length == 0) {
         var desc = this._header;
         return desc && desc.obj;
@@ -1049,7 +1043,7 @@
       this._move(this._getOrCreateDesc(obj), undefined);
       return this;
     },
-    last: function(obj) {
+    last: function (obj) {
       if (arguments.length == 0) {
         var desc = this._tail;
         return desc && desc.obj;
@@ -1057,32 +1051,32 @@
       this._move(this._getOrCreateDesc(obj), this._tail);
       return this;
     },
-    before: function(obj, target) {
+    before: function (obj, target) {
       if (arguments.length == 1) {
         var desc = this._desc(obj),
-          prev = desc && desc.prev;
+            prev = desc && desc.prev;
 
         return prev && prev.obj;
       }
       this._move(this._getOrCreateDesc(obj), this._desc(target).prev);
       return this;
     },
-    after: function(obj, target) {
+    after: function (obj, target) {
       if (arguments.length == 1) {
         var desc = this._desc(obj),
-          next = desc && desc.next;
+            next = desc && desc.next;
 
         return next && next.obj;
       }
       this._move(this._getOrCreateDesc(obj), this._desc(target));
       return this;
     },
-    contains: function(obj) {
+    contains: function (obj) {
       return !!this._desc(obj);
     },
-    remove: function(obj) {
+    remove: function (obj) {
       var list = this._listObj(obj),
-        desc = void 0;
+          desc = void 0;
 
       if (list && (desc = list[this._id])) {
         this._unlink(desc);
@@ -1091,7 +1085,7 @@
       }
       return false;
     },
-    clean: function() {
+    clean: function () {
       var desc = this._header;
       while (desc) {
         delete this._listObj(desc.obj)[this._id];
@@ -1102,15 +1096,15 @@
       this.length = 0;
       return this;
     },
-    empty: function() {
+    empty: function () {
       return this.length == 0;
     },
-    size: function() {
+    size: function () {
       return this.length;
     },
-    each: function(callback, scope) {
+    each: function (callback, scope) {
       var desc = this._header,
-        ver = this._version;
+          ver = this._version;
 
       while (desc) {
         if (desc.version < ver) {
@@ -1120,27 +1114,27 @@
       }
       return true;
     },
-    map: function(callback, scope) {
+    map: function (callback, scope) {
       var _this = this;
 
       var rs = [];
-      this.each(function(obj) {
+      this.each(function (obj) {
         rs.push(callback.call(scope || _this, obj, _this));
       });
       return rs;
     },
-    filter: function(callback, scope) {
+    filter: function (callback, scope) {
       var _this2 = this;
 
       var rs = [];
-      this.each(function(obj) {
+      this.each(function (obj) {
         if (callback.call(scope || _this2, obj, _this2)) rs.push(obj);
       });
       return rs;
     },
-    toArray: function() {
+    toArray: function () {
       var rs = [];
-      this.each(function(obj) {
+      this.each(function (obj) {
         rs.push(obj);
       });
       return rs;

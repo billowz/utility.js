@@ -1,5 +1,5 @@
 /*
- * utility.js v0.0.17 built in Tue, 27 Sep 2016 07:53:55 GMT
+ * utility.js v0.1.0 built in Wed, 28 Sep 2016 08:15:31 GMT
  * Copyright (c) 2016 Tao Zeng <tao.zeng.zt@gmail.com>
  * Released under the MIT license
  * support IE6+ and other browsers
@@ -54,17 +54,28 @@
 
   var toStr = Object.prototype.toString;
   var hasOwn = Object.prototype.hasOwnProperty;
-
-  function overrideHasOwnProlicy(fn) {
-    if (isFunc(fn)) hasOwn = fn;
+  var policies = {
+    hasOwn: function (obj, prop) {
+      return hasOwn.call(obj, prop);
+    },
+    eq: function (o1, o2) {
+      return o1 === o2;
+    }
+  };
+  function overridePolicy(name, policy) {
+    policies[name] = policy;
   }
 
-  function hasOwnProlicy() {
-    return hasOwn;
+  function policy(name) {
+    return policies[name];
   }
 
-  function hasOwnProp(obj, prop) {
-    return hasOwn.call(obj, prop);
+  function eq(o1, o2) {
+    return policies.eq(o1, o2);
+  }
+
+  function hasOwnProp(o1, o2) {
+    return policies.hasOwn(o1, o2);
   }
 
   // ==============================================
@@ -243,12 +254,21 @@
     return keys;
   }
 
+  function values(obj, filter, scope, own) {
+    var values = [];
+
+    each(obj, function (val, key) {
+      if (!filter || filter.apply(this, arguments)) values.push(val);
+    }, scope, own);
+    return values;
+  }
+
   function _indexOfArray(array, val) {
     var i = 0,
         l = array.length;
 
     for (; i < l; i++) {
-      if (array[i] === val) return i;
+      if (eq(array[i], val)) return i;
     }
     return -1;
   }
@@ -257,14 +277,14 @@
     var i = array.length;
 
     while (i-- > 0) {
-      if (array[i] === val) return i;
+      if (eq(array[i], val)) return i;
     }
   }
 
   function _indexOfObj(obj, val, own) {
     for (key in obj) {
       if (own === false || hasOwnProp(obj, key)) {
-        if (obj[key] === val) return key;
+        if (eq(obj[key], val)) return key;
       }
     }
     return undefined;
@@ -546,17 +566,15 @@
       var _this = this;
 
       if (overrides) {
-        (function () {
-          var proto = _this.prototype;
-          each(overrides, function (member, name) {
-            if (isFunc(member)) {
-              member.$owner = _this;
-              member.$name = name;
-            }
-            proto[name] = member;
-          });
-          _this.assign(overrides.statics);
-        })();
+        var proto = this.prototype;
+        each(overrides, function (member, name) {
+          if (isFunc(member)) {
+            member.$owner = _this;
+            member.$name = name;
+          }
+          proto[name] = member;
+        });
+        this.assign(overrides.statics);
       }
       return this;
     },
@@ -591,8 +609,9 @@
   }
 
 var _ = Object.freeze({
-    overrideHasOwnProlicy: overrideHasOwnProlicy,
-    hasOwnProlicy: hasOwnProlicy,
+    overridePolicy: overridePolicy,
+    policy: policy,
+    eq: eq,
     hasOwnProp: hasOwnProp,
     isPrimitive: isPrimitive,
     isDefine: isDefine,
@@ -612,6 +631,7 @@ var _ = Object.freeze({
     filter: filter,
     aggregate: aggregate,
     keys: keys,
+    values: values,
     indexOf: indexOf,
     lastIndexOf: lastIndexOf,
     convert: convert,
@@ -707,8 +727,6 @@ var   thousandSeparationReg$1 = /(\d)(?=(\d{3})+(?!\d))/g;
       minWidth = parseWidth(minWidth);
       precision = precision && parseWidth(precision.slice(1));
       if (!precision && precision !== 0) precision = 'fFeE'.indexOf(type) == -1 ? type == 'd' ? 0 : void 0 : 6;
-
-      console.log('match:' + match + ', index:' + i + '/' + value + ', flags:' + flags + ', width:' + minWidth + ', prec:' + precision + ', type:' + type);
 
       var leftJustify = false,
           positivePrefix = '',
@@ -881,17 +899,17 @@ var   thousandSeparationReg$1 = /(\d)(?=(\d{3})+(?!\d))/g;
       this.bodyEl.innerHTML = '';
     }
   });
-  var console$1 = window.console;
-  if (console$1 && !console$1.debug) console$1.debug = function () {
-    Function.apply.call(console$1.log, console$1, arguments);
+  var console = window.console;
+  if (console && !console.debug) console.debug = function () {
+    Function.apply.call(console.log, console, arguments);
   };
 
   var Logger = dynamicClass({
     statics: {
       enableSimulationConsole: function () {
-        if (!console$1) {
-          console$1 = new SimulationConsole();
-          console$1.appendTo(document.body);
+        if (!console) {
+          console = new SimulationConsole();
+          console.appendTo(document.body);
         }
       }
     },
@@ -906,11 +924,11 @@ var   thousandSeparationReg$1 = /(\d)(?=(\d{3})+(?!\d))/g;
       return logLevels[this.level];
     },
     _print: function (level, args, trace) {
-      Function.apply.call(console$1[level], console$1, args);
-      if (trace && console$1.trace) console$1.trace();
+      Function.apply.call(console[level], console, args);
+      if (trace && console.trace) console.trace();
     },
     _log: function (level, args, trace) {
-      if (level < this.level || !console$1) return;
+      if (level < this.level || !console) return;
       var msg = '[%s] %s -' + (isString(args[0]) ? ' ' + args.shift() : ''),
           errors = [];
       args = filter(args, function (arg) {

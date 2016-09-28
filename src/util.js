@@ -1,20 +1,32 @@
 import './polyfill'
 
-const toStr = Object.prototype.toString
-let hasOwn = Object.prototype.hasOwnProperty
+const toStr = Object.prototype.toString,
+  hasOwn = Object.prototype.hasOwnProperty,
+  policies = {
+    hasOwn(obj, prop) {
+      return hasOwn.call(obj, prop)
+    },
+    eq(o1, o2) {
+      return o1 === o2
+    }
+  }
 
-export function overrideHasOwnProlicy(fn) {
-  if (isFunc(fn))
-    hasOwn = fn
+export function overridePolicy(name, policy) {
+  policies[name] = policy
 }
 
-export function hasOwnProlicy() {
-  return hasOwn
+export function policy(name) {
+  return policies[name]
 }
 
-export function hasOwnProp(obj, prop) {
-  return hasOwn.call(obj, prop)
+export function eq(o1, o2) {
+  return policies.eq(o1, o2)
 }
+
+export function hasOwnProp(o1, o2) {
+  return policies.hasOwn(o1, o2)
+}
+
 
 // ==============================================
 // type utils
@@ -200,12 +212,22 @@ export function keys(obj, filter, scope, own) {
   return keys
 }
 
+export function values(obj, filter, scope, own) {
+  let values = []
+
+  each(obj, function(val, key) {
+    if (!filter || filter.apply(this, arguments))
+      values.push(val)
+  }, scope, own)
+  return values
+}
+
 function _indexOfArray(array, val) {
   let i = 0,
     l = array.length
 
   for (; i < l; i++) {
-    if (array[i] === val)
+    if (eq(array[i], val))
       return i
   }
   return -1
@@ -215,7 +237,7 @@ function _lastIndexOfArray(array, val) {
   let i = array.length
 
   while (i-- > 0) {
-    if (array[i] === val)
+    if (eq(array[i], val))
       return i
   }
 }
@@ -223,7 +245,7 @@ function _lastIndexOfArray(array, val) {
 function _indexOfObj(obj, val, own) {
   for (key in obj) {
     if (own === false || hasOwnProp(obj, key)) {
-      if (obj[key] === val)
+      if (eq(obj[key], val))
         return key
     }
   }
@@ -508,7 +530,7 @@ assign(Base.prototype, {
 assign(Base, {
   extend(overrides) {
     if (overrides) {
-      let proto = this.prototype
+      var proto = this.prototype
       each(overrides, (member, name) => {
         if (isFunc(member)) {
           member.$owner = this

@@ -47,8 +47,6 @@ function format(str, args) {
     if (!precision && precision !== 0)
       precision = 'fFeE'.indexOf(type) == -1 ? (type == 'd') ? 0 : void(0) : 6
 
-    console.log(`match:${match}, index:${i}/${value}, flags:${flags}, width:${minWidth}, prec:${precision}, type:${type}`)
-
     let leftJustify = false,
       positivePrefix = '',
       zeroPad = false,

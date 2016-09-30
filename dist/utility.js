@@ -1,5 +1,5 @@
 /*
- * utility.js v0.1.0 built in Wed, 28 Sep 2016 08:15:31 GMT
+ * utility.js v0.1.0 built in Fri, 30 Sep 2016 07:15:05 GMT
  * Copyright (c) 2016 Tao Zeng <tao.zeng.zt@gmail.com>
  * Released under the MIT license
  * support IE6+ and other browsers
@@ -661,6 +661,7 @@ var _ = Object.freeze({
   var Configuration = dynamicClass({
     constructor: function (def) {
       this.cfg = def || {};
+      this.listens = [];
     },
     register: function (name, defVal) {
       var _this = this;
@@ -678,12 +679,27 @@ var _ = Object.freeze({
       var _this2 = this;
 
       if (cfg) each(this.cfg, function (val, key) {
-        if (hasOwnProp(cfg, key)) _this2.cfg[key] = cfg[key];
+        if (hasOwnProp(cfg, key)) {
+          var oldVal = _this2.cfg[key],
+              val = cfg[key];
+
+          _this2.cfg[key] = val;
+          each(_this2.listens, function (h) {
+            return h(key, val, oldVal, _this2);
+          });
+        }
       });
       return this;
     },
     get: function (name) {
       return arguments.length ? this.cfg[name] : create(this.cfg);
+    },
+    listen: function (handler) {
+      this.listens.push(handler);
+    },
+    unlisten: function (handler) {
+      var idx = lastIndexOf(this.listens, handler);
+      if (idx != -1) this.listens.splice(idx, 1);
     }
   });
 
